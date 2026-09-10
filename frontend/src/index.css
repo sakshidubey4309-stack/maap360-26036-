@@ -1,0 +1,819 @@
+/* =========================================================
+   MAAP360 - COMPLETE STYLING
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #061827;
+  color: #ffffff;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.app {
+  min-height: 100vh;
+  background: #061827;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.header {
+  height: 92px;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  background: #061827;
+  border-bottom: 1px solid #193344;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #08c7b5;
+  color: #061827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.logo-name {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.logo-subtitle {
+  margin-top: 2px;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #22cdbd;
+}
+
+/* =========================================================
+   HOME PAGE
+   ========================================================= */
+
+.home-page {
+  min-height: calc(100vh - 92px);
+  background: #061827;
+  padding: 70px 7%;
+}
+
+.home-content {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.badge {
+  display: inline-block;
+  padding: 8px 13px;
+  border: 1px solid #155d67;
+  border-radius: 20px;
+  color: #25d2c1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 22px;
+}
+
+.home-content h1 {
+  margin: 0;
+  font-size: 52px;
+  line-height: 1.08;
+  color: white;
+  letter-spacing: -1px;
+}
+
+.home-content h1 span {
+  color: #19cdbb;
+}
+
+.home-content > p {
+  max-width: 620px;
+  margin: 22px 0 45px;
+  color: #9db2c2;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.home-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 850px;
+}
+
+.home-option {
+  width: 100%;
+  min-height: 92px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 55px 1fr 35px;
+  align-items: center;
+  gap: 18px;
+  text-align: left;
+
+  background: #0a2233;
+  border: 1px solid #18394a;
+  border-radius: 12px;
+  color: white;
+
+  transition: 0.2s ease;
+}
+
+.home-option:hover {
+  border-color: #17c8b6;
+  background: #0d2b3d;
+  transform: translateY(-2px);
+}
+
+.option-number {
+  color: #18cdbc;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.home-option h2 {
+  margin: 0 0 5px;
+  color: white;
+  font-size: 17px;
+}
+
+.home-option p {
+  margin: 0;
+  color: #91a8b8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.arrow {
+  color: #1bd0bd;
+  font-size: 23px;
+  text-align: right;
+}
+
+/* =========================================================
+   GENERAL PAGES
+   ========================================================= */
+
+.page {
+  min-height: calc(100vh - 92px);
+  background: #f3f7f9;
+  color: #102a43;
+  padding: 35px 7% 70px;
+}
+
+.back-button {
+  border: none;
+  background: transparent;
+  color: #08a998;
+  font-size: 14px;
+  padding: 5px 0;
+  margin-bottom: 25px;
+}
+
+.back-button:hover {
+  color: #067d70;
+}
+
+.simple-card {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 8px 30px rgba(16, 42, 67, 0.08);
+}
+
+.simple-card h1,
+.form-card h1 {
+  margin: 10px 0;
+  color: #102a43;
+  font-size: 32px;
+}
+
+.simple-card p {
+  color: #627d98;
+  line-height: 1.6;
+}
+
+.section-label {
+  color: #08a998;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* =========================================================
+   OWNER CHOICE
+   ========================================================= */
+
+.two-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.dashboard-option {
+  min-height: 170px;
+  padding: 25px;
+  text-align: left;
+  background: #f8fbfc;
+  border: 1px solid #dce7ec;
+  border-radius: 13px;
+  color: #102a43;
+  transition: 0.2s ease;
+}
+
+.dashboard-option:hover {
+  border-color: #0eaf9e;
+  transform: translateY(-2px);
+}
+
+.dashboard-option h2 {
+  margin: 0 0 10px;
+  color: #102a43;
+}
+
+.dashboard-option p {
+  color: #627d98;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   SIGN IN + LOGIN FORM CARD
+   ========================================================= */
+
+.form-card {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 38px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 35px rgba(16, 42, 67, 0.10);
+}
+
+.form-description {
+  color: #627d98;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+/* =========================================================
+   SIGN IN FORM
+   EVERYTHING ONE BELOW ANOTHER
+   ========================================================= */
+
+.form-card form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 17px;
+}
+
+/* Label + input are separate elements in App.jsx,
+   so this makes every field vertical */
+
+.form-card form label {
+  display: block;
+  width: 100%;
+  margin: 0;
+  color: #243b53;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-card form input,
+.form-card form select,
+.form-card form textarea {
+  display: block;
+  width: 100%;
+  margin: -8px 0 0;
+  padding: 13px 14px;
+
+  background: #ffffff;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+
+  color: #102a43;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-card form input:focus,
+.form-card form select:focus,
+.form-card form textarea:focus {
+  border-color: #0eaf9e;
+  box-shadow: 0 0 0 3px rgba(14, 175, 158, 0.10);
+}
+
+.form-card form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* =========================================================
+   LOGIN FORM
+   ========================================================= */
+
+.form-card > label {
+  display: block;
+  width: 100%;
+  margin: 18px 0 7px;
+
+  color: #243b53;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-card > input {
+  display: block;
+  width: 100%;
+  padding: 13px 14px;
+
+  background: white;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+
+  color: #102a43;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-card > input:focus {
+  border-color: #0eaf9e;
+  box-shadow: 0 0 0 3px rgba(14, 175, 158, 0.10);
+}
+
+/* =========================================================
+   FORM BUTTON
+   ========================================================= */
+
+.primary-form-button {
+  width: 100%;
+  padding: 14px 20px;
+  margin-top: 8px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #0eaa99;
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  transition: 0.2s ease;
+}
+
+.primary-form-button:hover {
+  background: #078c7e;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.error-message {
+  width: 100%;
+  margin: 15px 0;
+  padding: 11px 13px;
+
+  background: #fff4f4;
+  border: 1px solid #f0c5c5;
+  border-radius: 7px;
+
+  color: #b42318;
+  font-size: 13px;
+}
+
+/* =========================================================
+   OTP
+   ========================================================= */
+
+.otp-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5edf1;
+}
+
+.otp-message {
+  padding: 12px;
+  margin-bottom: 15px;
+
+  background: #effaf8;
+  border-radius: 8px;
+
+  color: #087f71;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.otp-section label {
+  display: block;
+  margin-bottom: 7px;
+  color: #243b53;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.otp-section input {
+  display: block;
+  width: 100%;
+  padding: 13px 14px;
+
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  outline: none;
+}
+
+.demo-otp {
+  margin-top: 15px;
+  text-align: center;
+  color: #627d98;
+  font-size: 12px;
+}
+
+/* =========================================================
+   REGISTRATION SUCCESS
+   ========================================================= */
+
+.success-card {
+  text-align: center;
+}
+
+.success-icon {
+  width: 55px;
+  height: 55px;
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #dff8f4;
+  color: #08a998;
+
+  border-radius: 50%;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.owner-id-box {
+  margin: 25px 0;
+  padding: 20px;
+
+  background: #effaf8;
+  border: 1px solid #b9ebe4;
+  border-radius: 10px;
+}
+
+.owner-id-box small {
+  display: block;
+  margin-bottom: 8px;
+
+  color: #087f71;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.owner-id-box strong {
+  color: #102a43;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.important-note {
+  color: #627d98;
+  font-size: 13px;
+}
+
+/* =========================================================
+   OWNER DASHBOARD
+   ========================================================= */
+
+.owner-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #102a43;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.dashboard-header h1 {
+  margin: 8px 0 5px;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #627d98;
+}
+
+.logout-button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  background: #102a43;
+  color: white;
+}
+
+/* =========================================================
+   OWNER DETAILS
+   ========================================================= */
+
+.owner-details-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  padding: 22px;
+  margin-bottom: 22px;
+
+  background: white;
+  border-radius: 13px;
+  box-shadow: 0 5px 20px rgba(16, 42, 67, 0.07);
+}
+
+.owner-details-card small,
+.stat-card small,
+.instrument-row small {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #829ab1;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.owner-details-card strong {
+  color: #102a43;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+/* =========================================================
+   STATISTICS
+   ========================================================= */
+
+.statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(16, 42, 67, 0.07);
+}
+
+.stat-card strong {
+  display: block;
+  color: #102a43;
+  font-size: 30px;
+}
+
+.active-stat {
+  border-top: 3px solid #0eaa99;
+}
+
+.expired-stat {
+  border-top: 3px solid #d64545;
+}
+
+.warning-stat {
+  border-top: 3px solid #e6a700;
+}
+
+/* =========================================================
+   INSTRUMENT SECTION
+   ========================================================= */
+
+.instrument-section {
+  background: white;
+  border-radius: 13px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(16, 42, 67, 0.07);
+}
+
+.instrument-section h2 {
+  margin-top: 7px;
+}
+
+.instrument-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.instrument-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1.5fr 1.2fr 1.2fr 1fr;
+  gap: 15px;
+  align-items: center;
+
+  padding: 17px;
+
+  background: #f8fbfc;
+  border: 1px solid #e5edf1;
+  border-radius: 9px;
+}
+
+.instrument-row strong {
+  font-size: 13px;
+  color: #102a43;
+}
+
+.status {
+  display: inline-block;
+  padding: 6px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.status.active {
+  background: #dff8f4;
+  color: #087f71;
+}
+
+.status.expired {
+  background: #ffe8e8;
+  color: #b42318;
+}
+
+.status.warning {
+  background: #fff4d6;
+  color: #996b00;
+}
+
+/* =========================================================
+   OFFICER / OTHER BUTTON
+   ========================================================= */
+
+.large-login-button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 15px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #0eaa99;
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+  .header {
+    height: 75px;
+    padding: 0 20px;
+  }
+
+  .home-page {
+    padding: 45px 20px;
+  }
+
+  .home-content h1 {
+    font-size: 38px;
+  }
+
+  .home-option {
+    grid-template-columns: 40px 1fr 25px;
+    padding: 17px;
+  }
+
+  .two-options {
+    grid-template-columns: 1fr;
+  }
+
+  .simple-card,
+  .form-card {
+    padding: 25px;
+  }
+
+  .owner-details-card {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .statistics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .instrument-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+
+  .logo-name {
+    font-size: 18px;
+  }
+
+  .home-content h1 {
+    font-size: 32px;
+  }
+
+  .home-content > p {
+    font-size: 14px;
+  }
+
+  .home-option {
+    grid-template-columns: 35px 1fr 20px;
+    gap: 10px;
+  }
+
+  .home-option h2 {
+    font-size: 15px;
+  }
+
+  .home-option p {
+    font-size: 12px;
+  }
+
+  .simple-card,
+  .form-card {
+    padding: 20px;
+  }
+
+  .simple-card h1,
+  .form-card h1 {
+    font-size: 25px;
+  }
+
+  .owner-details-card {
+    grid-template-columns: 1fr;
+  }
+
+  .statistics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .instrument-row {
+    grid-template-columns: 1fr;
+  }
+
+  .page {
+    padding: 25px 15px 50px;
+  }
+}
