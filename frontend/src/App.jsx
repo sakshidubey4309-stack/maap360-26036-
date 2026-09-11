@@ -57,7 +57,25 @@ function App() {
     image: null,
     qrImage: null,
     sealImage: null,
+    decision: "",
+    remarks: "",
   });
+
+  const [reportData, setReportData] = useState({
+    reporterName: "",
+    phone: "",
+    email: "",
+    instrumentId: "",
+    category: "",
+    shopName: "",
+    location: "",
+    reason: "",
+    description: "",
+    image: null,
+  });
+
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+  const [reportId, setReportId] = useState("");
 
   // =========================
   // QR SCANNER
@@ -106,6 +124,19 @@ function App() {
 
     setPage("home");
     setVerificationResult(null);
+  };
+
+  // =========================
+  // INPUT VALIDATION
+  // =========================
+
+  const phonePattern = "^[6-9][0-9]{9}$";
+  const emailPattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+  const passwordPattern =
+    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$";
+
+  const handlePhoneChange = (setter, value) => {
+    setter(value.replace(/\\D/g, "").slice(0, 10));
   };
 
   // =========================
@@ -346,10 +377,27 @@ function App() {
   const verifyDevice = (e) => {
     e.preventDefault();
 
+    const decisionText =
+      verificationData.decision === "Approved"
+        ? "Device approved for verification."
+        : verificationData.decision === "Rejected"
+        ? "Device marked for rejection."
+        : "Device verification submitted for review.";
+
     setVerificationResult({
       success: true,
-      text: "Device verification submitted successfully.",
+      text: `${decisionText} Officer remarks recorded successfully.`,
     });
+  };
+
+  const submitDeviceReport = (e) => {
+    e.preventDefault();
+
+    const generatedReportId =
+      "RPT-" + Math.floor(100000 + Math.random() * 900000);
+
+    setReportId(generatedReportId);
+    setReportSubmitted(true);
   };
 
   // ============================================================
@@ -669,25 +717,36 @@ function App() {
 
                 <input
                   required
-                  placeholder="Phone Number"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength="10"
+                  pattern={phonePattern}
+                  title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9."
+                  placeholder="Phone Number (10 digits)"
                   value={ownerData.phone}
                   onChange={(e) =>
-                    setOwnerData({
-                      ...ownerData,
-                      phone: e.target.value,
-                    })
+                    handlePhoneChange(
+                      (value) =>
+                        setOwnerData({
+                          ...ownerData,
+                          phone: value,
+                        }),
+                      e.target.value
+                    )
                   }
                 />
 
                 <input
                   required
                   type="email"
+                  pattern={emailPattern}
+                  title="Enter a valid email address, for example name@example.com."
                   placeholder="Email Address"
                   value={ownerData.email}
                   onChange={(e) =>
                     setOwnerData({
                       ...ownerData,
-                      email: e.target.value,
+                      email: e.target.value.trim(),
                     })
                   }
                 />
@@ -818,12 +877,18 @@ function App() {
                 <input
                   required
                   type="password"
-                  placeholder="Set Password"
+                  minLength="8"
+                  pattern={passwordPattern}
+                  title="Password must be at least 8 characters and include uppercase, lowercase, number and special character."
+                  placeholder="Set Password (8+ chars)"
                   value={ownerPassword}
                   onChange={(e) =>
                     setOwnerPassword(e.target.value)
                   }
                 />
+                <small className="field-hint">
+                  Use 8+ characters with uppercase, lowercase, number and special character.
+                </small>
 
                 <button
                   className="primary-button"
@@ -922,6 +987,7 @@ function App() {
                 <input
                   required
                   type="password"
+                  minLength="8"
                   placeholder="Password"
                   value={ownerLoginPassword}
                   onChange={(e) =>
@@ -1486,12 +1552,24 @@ function App() {
               Dashboard
             </button>
 
-            <button
-              onClick={() =>
-                setPage("verify-device")
-              }
-            >
+            <button onClick={() => setPage("verify-device")}>
               Verify a Device
+            </button>
+
+            <button>
+              Pending Cases
+            </button>
+
+            <button>
+              Reported Devices
+            </button>
+
+            <button>
+              Verification History
+            </button>
+
+            <button>
+              Audit & Activity
             </button>
 
             <button onClick={goHome}>
@@ -1504,45 +1582,181 @@ function App() {
 
             <div className="dashboard-header">
 
-              <h2>
-                Government Officer Dashboard
-              </h2>
+              <div>
+                <h2>Government Officer Portal</h2>
+                <p className="dashboard-subtitle">
+                  Digital verification, monitoring and audit control
+                </p>
+              </div>
+
+              <span>VERIFIED OFFICER</span>
+
+            </div>
+
+            <div className="welcome-card">
+
+              <div className="shop-graphic">
+                ◆
+              </div>
+
+              <div>
+                <h2>Officer Control Centre</h2>
+
+                <p>
+                  Review instrument records, verify devices and monitor
+                  reported or expiring instruments.
+                </p>
+
+                <p>
+                  Two-factor authentication: Enabled
+                </p>
+              </div>
 
             </div>
 
             <div className="statistics">
 
               <div className="stat-card">
-
-                <span>
-                  Pending Verifications
-                </span>
-
-                <strong>
-                  12
-                </strong>
-
+                <span>Pending Verifications</span>
+                <strong>12</strong>
               </div>
 
               <div className="stat-card">
+                <span>Devices Expiring This Month</span>
+                <strong>08</strong>
+              </div>
 
-                <span>
-                  Devices Expiring This Month
-                </span>
+              <div className="stat-card">
+                <span>Reported Devices</span>
+                <strong>05</strong>
+              </div>
 
-                <strong>
-                  08
-                </strong>
+              <div className="stat-card">
+                <span>Verified This Month</span>
+                <strong>37</strong>
+              </div>
+
+            </div>
+
+            <div className="simple-card officer-summary-card">
+
+              <h2>Officer Overview</h2>
+
+              <div className="details-grid">
+
+                <div>
+                  <span>Officer Access</span>
+                  <strong>Government Verification Officer</strong>
+                </div>
+
+                <div>
+                  <span>Security</span>
+                  <strong>Mobile + Email 2FA</strong>
+                </div>
+
+                <div>
+                  <span>Current Queue</span>
+                  <strong>12 Pending Cases</strong>
+                </div>
+
+                <div>
+                  <span>Priority Alerts</span>
+                  <strong>08 Instruments Expiring</strong>
+                </div>
 
               </div>
 
             </div>
 
+            <div className="simple-card">
+
+              <h2>Recent Verification Activity</h2>
+
+              <div className="activity-list">
+
+                <div className="activity-row">
+                  <div>
+                    <strong>MAAP-BPL-000124</strong>
+                    <span>Electronic Weighing Instrument</span>
+                  </div>
+                  <div>
+                    <strong>Verified</strong>
+                    <small>09 Sep 2026 • 11:42 AM</small>
+                  </div>
+                </div>
+
+                <div className="activity-row">
+                  <div>
+                    <strong>MAAP-BPL-000126</strong>
+                    <span>Measuring Instrument</span>
+                  </div>
+                  <div>
+                    <strong>Expiring Soon</strong>
+                    <small>19 Sep 2026</small>
+                  </div>
+                </div>
+
+                <div className="activity-row">
+                  <div>
+                    <strong>MAAP-BPL-000127</strong>
+                    <span>Platform Weighing Instrument</span>
+                  </div>
+                  <div>
+                    <strong>Pending</strong>
+                    <small>Awaiting inspection</small>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="simple-card">
+
+              <h2>Audit & Activity Log</h2>
+
+              <div className="audit-table">
+
+                <div className="audit-row audit-head">
+                  <span>Activity</span>
+                  <span>Reference</span>
+                  <span>Date & Time</span>
+                  <span>Status</span>
+                </div>
+
+                <div className="audit-row">
+                  <span>Device verification</span>
+                  <span>MAAP-BPL-000124</span>
+                  <span>09 Sep 2026, 11:42 AM</span>
+                  <span className="audit-status success-text">Completed</span>
+                </div>
+
+                <div className="audit-row">
+                  <span>Report received</span>
+                  <span>RPT-452181</span>
+                  <span>08 Sep 2026, 04:18 PM</span>
+                  <span className="audit-status warning-text">Under Review</span>
+                </div>
+
+                <div className="audit-row">
+                  <span>Device verification</span>
+                  <span>MAAP-BPL-000127</span>
+                  <span>08 Sep 2026, 01:05 PM</span>
+                  <span className="audit-status warning-text">Pending</span>
+                </div>
+
+              </div>
+
+              <p className="security-note">
+                Security note: passwords and OTP values are never displayed
+                in the officer audit view.
+              </p>
+
+            </div>
+
             <button
               className="large-action-button"
-              onClick={() =>
-                setPage("verify-device")
-              }
+              onClick={() => setPage("verify-device")}
             >
               Verify a Device →
             </button>
@@ -1671,6 +1885,42 @@ function App() {
                     ...verificationData,
                     instrumentEntries:
                       e.target.value,
+                  })
+                }
+              />
+
+              <label>
+                Verification Decision
+              </label>
+
+              <select
+                required
+                value={verificationData.decision}
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    decision: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select Decision</option>
+                <option value="Approved">Approve Device</option>
+                <option value="Rejected">Reject Device</option>
+                <option value="Needs Review">Needs Further Review</option>
+              </select>
+
+              <label>
+                Officer Remarks
+              </label>
+
+              <textarea
+                required
+                placeholder="Enter verification findings, seal condition, device condition or other remarks"
+                value={verificationData.remarks}
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    remarks: e.target.value,
                   })
                 }
               />
@@ -1920,24 +2170,238 @@ function App() {
 
         <main className="page-container">
 
-          <button
-            className="back-button"
-            onClick={goHome}
-          >
+          <button className="back-button" onClick={goHome}>
             ← Back to Home
           </button>
 
-          <section className="simple-card">
+          {!reportSubmitted ? (
 
-            <h2>
-              Report a Device
-            </h2>
+            <section className="form-card report-card">
 
-            <p>
-              Device reporting section.
-            </p>
+              <div className="eyebrow">
+                DEVICE SAFETY & COMPLAINT REPORTING
+              </div>
 
-          </section>
+              <h2>Report a Device</h2>
+
+              <p className="form-intro">
+                Report a suspected unverified, damaged, tampered or
+                incorrectly verified weighing or measuring instrument.
+              </p>
+
+              <form onSubmit={submitDeviceReport}>
+
+                <h3 className="form-section-title">
+                  Reporter Information
+                </h3>
+
+                <input
+                  required
+                  placeholder="Reporter Name"
+                  value={reportData.reporterName}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      reporterName: e.target.value,
+                    })
+                  }
+                />
+
+                <input
+                  required
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength="10"
+                  pattern={phonePattern}
+                  title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9."
+                  placeholder="Mobile Number (10 digits)"
+                  value={reportData.phone}
+                  onChange={(e) =>
+                    handlePhoneChange(
+                      (value) =>
+                        setReportData({
+                          ...reportData,
+                          phone: value,
+                        }),
+                      e.target.value
+                    )
+                  }
+                />
+
+                <input
+                  required
+                  type="email"
+                  pattern={emailPattern}
+                  title="Enter a valid email address, for example name@example.com."
+                  placeholder="Email Address"
+                  value={reportData.email}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      email: e.target.value.trim(),
+                    })
+                  }
+                />
+
+                <h3 className="form-section-title">
+                  Device Information
+                </h3>
+
+                <input
+                  required
+                  placeholder="Instrument / Device ID"
+                  value={reportData.instrumentId}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      instrumentId: e.target.value,
+                    })
+                  }
+                />
+
+                <select
+                  required
+                  value={reportData.category}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      category: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select Instrument Category</option>
+                  <option value="Electronic Weighing Instrument">
+                    Electronic Weighing Instrument
+                  </option>
+                  <option value="Platform Weighing Instrument">
+                    Platform Weighing Instrument
+                  </option>
+                  <option value="Measuring Instrument">
+                    Measuring Instrument
+                  </option>
+                  <option value="Other">Other</option>
+                </select>
+
+                <input
+                  required
+                  placeholder="Shop / Owner Name"
+                  value={reportData.shopName}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      shopName: e.target.value,
+                    })
+                  }
+                />
+
+                <input
+                  required
+                  placeholder="Device Location / Shop Address"
+                  value={reportData.location}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      location: e.target.value,
+                    })
+                  }
+                />
+
+                <h3 className="form-section-title">
+                  Report Details
+                </h3>
+
+                <select
+                  required
+                  value={reportData.reason}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      reason: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select Reason for Report</option>
+                  <option value="Missing verification mark">
+                    Missing verification mark
+                  </option>
+                  <option value="Suspected tampering">
+                    Suspected tampering
+                  </option>
+                  <option value="Expired verification">
+                    Expired verification
+                  </option>
+                  <option value="Incorrect measurement">
+                    Incorrect measurement
+                  </option>
+                  <option value="Damaged instrument">
+                    Damaged instrument
+                  </option>
+                  <option value="Other">Other</option>
+                </select>
+
+                <textarea
+                  required
+                  placeholder="Describe the issue in detail"
+                  value={reportData.description}
+                  onChange={(e) =>
+                    setReportData({
+                      ...reportData,
+                      description: e.target.value,
+                    })
+                  }
+                />
+
+                <label className="upload-box report-upload">
+                  <span>📷 Upload Supporting Device Image</span>
+                  <small>Optional evidence image</small>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setReportData({
+                        ...reportData,
+                        image: e.target.files[0] || null,
+                      })
+                    }
+                  />
+                </label>
+
+                <button className="primary-button" type="submit">
+                  Submit Device Report
+                </button>
+
+              </form>
+
+            </section>
+
+          ) : (
+
+            <section className="success-card">
+
+              <div className="success-circle">✓</div>
+
+              <h2>Report Submitted Successfully</h2>
+
+              <p>
+                Your device report has been recorded and forwarded
+                for officer review.
+              </p>
+
+              <div className="owner-id-box">
+                <span>Report ID</span>
+                <strong>{reportId}</strong>
+              </div>
+
+              <p>Keep this Report ID for future reference.</p>
+
+              <button className="primary-button" onClick={goHome}>
+                Back to Home
+              </button>
+
+            </section>
+
+          )}
 
         </main>
       )}
