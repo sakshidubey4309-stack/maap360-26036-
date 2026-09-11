@@ -1,708 +1,748 @@
-import { useEffect, useRef, useState } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
-
-function QrVerificationPage({ instruments }) {
-
-  const scannerRef = useRef(null);
-  const [scanResult, setScanResult] = useState("");
-  const [scanError, setScanError] = useState("");
-  const [scannerStarted, setScannerStarted] = useState(false);
-
-  useEffect(() => {
-
-    const scanner = new Html5QrcodeScanner(
-      "maap360-qr-reader",
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-      },
-      false
-    );
-
-    scannerRef.current = scanner;
-
-    scanner.render(
-      (decodedText) => {
-        setScanResult(decodedText);
-        setScanError("");
-        setScannerStarted(true);
-      },
-      () => {
-        // Camera scanning errors happen continuously while searching for a QR.
-        // We intentionally do not show every frame's error to the user.
-      }
-    );
-
-    return () => {
-      scanner.clear().catch(() => {});
-      scannerRef.current = null;
-    };
-  }, []);
-
-  function getInstrumentId(decodedText) {
-    const match = decodedText.match(/MAAP-[A-Z]+-\d{6}/i);
-    return match ? match[0].toUpperCase() : decodedText.trim();
-  }
-
-  const instrumentId = getInstrumentId(scanResult);
-  const instrument = instruments.find(
-    (item) => item.id.toUpperCase() === instrumentId.toUpperCase()
-  );
-
-  return (
-    <div className="simple-card qr-card">
-
-      <div className="section-label">
-        QR VERIFICATION
-      </div>
-
-      <h1>
-        Scan QR & Verify
-      </h1>
-
-      <p>
-        Allow camera access and place the MAAP360 QR code inside the frame.
-      </p>
-
-      <div className="qr-scanner-wrapper">
-        <div id="maap360-qr-reader"></div>
-      </div>
-
-      <div className="scanner-status">
-        {scannerStarted
-          ? "Scanner is ready. Point the camera at a QR code."
-          : "Starting camera scanner..."}
-      </div>
-
-      {scanError && (
-        <div className="error-message">
-          {scanError}
-        </div>
-      )}
-
-      {scanResult && (
-        <div className="qr-result-card">
-
-          <div className="section-label">
-            QR DETECTED
-          </div>
-
-          <h2>
-            {instrument ? "Device Verified" : "QR Code Scanned"}
-          </h2>
-
-          <div className="qr-result-row">
-            <span>Scanned Data</span>
-            <strong>{scanResult}</strong>
-          </div>
-
-          <div className="qr-result-row">
-            <span>Instrument ID</span>
-            <strong>{instrumentId}</strong>
-          </div>
-
-          {instrument ? (
-            <div className="verification-result">
-
-              <div className="verification-badge">
-                {instrument.status}
-              </div>
-
-              <div className="verification-grid">
-                <div>
-                  <small>INSTRUMENT TYPE</small>
-                  <strong>{instrument.type}</strong>
-                </div>
-
-                <div>
-                  <small>VERIFICATION DATE</small>
-                  <strong>{instrument.verificationDate}</strong>
-                </div>
-
-                <div>
-                  <small>EXPIRY DATE</small>
-                  <strong>{instrument.expiryDate}</strong>
-                </div>
-              </div>
-
-            </div>
-          ) : (
-            <div className="error-message">
-              This QR code is not linked to a MAAP360 instrument in this demo.
-            </div>
-          )}
-
-        </div>
-      )}
-
-    </div>
-  );
-}
+import { useRef, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
+import "./App.css";
 
 function App() {
-
   const [page, setPage] = useState("home");
 
-  // OWNER ACCOUNT STATES
-  const [ownerScreen, setOwnerScreen] = useState("choice");
+  // =========================
+  // OWNER
+  // =========================
 
-  const [ownerName, setOwnerName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [shopName, setShopName] = useState("");
-  const [shopType, setShopType] = useState("");
-  const [businessType, setBusinessType] = useState("");
-  const [address, setAddress] = useState("");
-
+  const [ownerMode, setOwnerMode] = useState("signin");
   const [ownerId, setOwnerId] = useState("");
-  const [password, setPassword] = useState("");
-  const [registeredPassword, setRegisteredPassword] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
+  const [ownerLoginId, setOwnerLoginId] = useState("");
+  const [ownerLoginPassword, setOwnerLoginPassword] = useState("");
 
-  const [loginOwnerId, setLoginOwnerId] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const [ownerOtp, setOwnerOtp] = useState("");
+  const [ownerOtpSent, setOwnerOtpSent] = useState(false);
 
-  const [otp, setOtp] = useState("");
-  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [ownerLoggedIn, setOwnerLoggedIn] = useState(false);
 
-  const [loginError, setLoginError] = useState("");
+  const [ownerData, setOwnerData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    shopName: "",
+    shopType: "",
+    businessType: "",
+    gstNo: "",
+    address: "",
+  });
 
-  const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  // =========================
+  // OFFICER
+  // =========================
 
+  const [officerLoginId, setOfficerLoginId] = useState("");
+  const [officerPassword, setOfficerPassword] = useState("");
 
+  const [officerOtpMobile, setOfficerOtpMobile] = useState("");
+  const [officerOtpEmail, setOfficerOtpEmail] = useState("");
+  const [officerOtpSent, setOfficerOtpSent] = useState(false);
+
+  const [officerLoggedIn, setOfficerLoggedIn] = useState(false);
+
+  // =========================
+  // DEVICE VERIFICATION
+  // =========================
+
+  const [verificationData, setVerificationData] = useState({
+    instrumentId: "",
+    category: "",
+    lastVerificationDate: "",
+    shopEntries: "",
+    instrumentEntries: "",
+    image: null,
+    qrImage: null,
+    sealImage: null,
+  });
+
+  // =========================
+  // QR SCANNER
+  // =========================
+
+  const scannerRef = useRef(null);
+
+  const [cameraRunning, setCameraRunning] = useState(false);
+  const [cameraError, setCameraError] = useState("");
+  const [verificationResult, setVerificationResult] = useState(null);
+
+  // =========================
   // SAMPLE INSTRUMENT DATA
+  // =========================
+
   const instruments = [
     {
       id: "MAAP-BPL-000124",
-      type: "Electronic Weighing Instrument",
+      category: "Electronic Weighing Instrument",
       verificationDate: "09 September 2026",
       expiryDate: "08 September 2027",
-      status: "ACTIVELY VERIFIED"
+      status: "ACTIVELY VERIFIED",
     },
     {
       id: "MAAP-BPL-000125",
-      type: "Platform Weighing Instrument",
+      category: "Platform Weighing Instrument",
       verificationDate: "15 August 2025",
       expiryDate: "14 August 2026",
-      status: "EXPIRED"
+      status: "EXPIRED",
     },
     {
       id: "MAAP-BPL-000126",
-      type: "Measuring Instrument",
+      category: "Measuring Instrument",
       verificationDate: "20 September 2025",
       expiryDate: "19 September 2026",
-      status: "EXPIRING THIS MONTH"
-    }
+      status: "EXPIRING THIS MONTH",
+    },
   ];
 
+  // =========================
+  // GENERAL NAVIGATION
+  // =========================
 
-  // GENERATE OWNER ID
-  function generateOwnerId() {
+  const goHome = async () => {
+    await stopScanner();
 
-    const generatedId =
-      "MAAP-" +
-      Math.floor(100000 + Math.random() * 900000);
+    setPage("home");
+    setVerificationResult(null);
+  };
 
-    setOwnerId(generatedId);
-
-    return generatedId;
-  }
-
-
+  // =========================
   // OWNER REGISTRATION
-  function registerOwner(event) {
+  // =========================
 
-    event.preventDefault();
+  const sendOwnerRegistrationOtp = (e) => {
+    e.preventDefault();
 
-    if (
-      !ownerName ||
-      !phone ||
-      !email ||
-      !shopName ||
-      !shopType ||
-      !businessType ||
-      !address ||
-      !password
-    ) {
-      alert("Please fill all the required details.");
-      return;
-    }
+    /*
+      Prototype OTP.
 
-    const newOwnerId = generateOwnerId();
+      In the real system this would send
+      an OTP to the registered mobile number.
+    */
 
-    setRegisteredPassword(password);
+    setOwnerOtpSent(true);
+    setOwnerOtp("");
+  };
 
-    setRegistrationComplete(true);
+  // =========================
+  // VERIFY OWNER OTP
+  // =========================
 
-    setLoginOwnerId(newOwnerId);
+  const verifyOwnerRegistrationOtp = (e) => {
+    e.preventDefault();
 
-    setOwnerScreen("registered");
-  }
+    /*
+      Demo OTP for prototype:
+      123456
+    */
 
+    if (ownerOtp === "123456") {
+      const generatedOwnerId =
+        "MAAP-" + Math.floor(100000 + Math.random() * 900000);
 
-  // SEND OTP
-  function sendOtp() {
+      setOwnerId(generatedOwnerId);
 
-    if (!loginOwnerId || !loginPassword) {
-      setLoginError("Please enter Owner ID and Password.");
-      return;
-    }
+      setOwnerOtpSent(false);
+      setOwnerOtp("");
 
-    if (
-      loginOwnerId !== ownerId ||
-      loginPassword !== registeredPassword
-    ) {
-      setLoginError("Incorrect Owner ID or Password.");
-      return;
-    }
-
-    setLoginError("");
-
-    // DEMO OTP
-    const demoOtp = "123456";
-
-    setGeneratedOtp(demoOtp);
-    setOtpSent(true);
-  }
-
-
-  // VERIFY OTP
-  function verifyOtp() {
-
-    if (otp === generatedOtp) {
-
-      setLoggedIn(true);
-      setOwnerScreen("dashboard");
-
+      setPage("owner-success");
     } else {
-
-      setLoginError("Incorrect OTP. Please try again.");
-
+      alert("Invalid OTP. For this prototype, use 123456.");
     }
-  }
+  };
 
+  // =========================
+  // OWNER LOGIN
+  // =========================
 
-  // LOGOUT
-  function logoutOwner() {
+  const sendOwnerOtp = (e) => {
+    e.preventDefault();
 
-    setLoggedIn(false);
-    setOwnerScreen("choice");
-    setOtp("");
-    setOtpSent(false);
-    setLoginError("");
-  }
+    if (
+      ownerLoginId === ownerId &&
+      ownerLoginPassword === ownerPassword
+    ) {
+      setOwnerOtpSent(true);
+      setOwnerOtp("");
+    } else {
+      alert("Invalid Owner ID or Password.");
+    }
+  };
 
+  // =========================
+  // OWNER LOGIN OTP
+  // =========================
+
+  const verifyOwnerOtp = (e) => {
+    e.preventDefault();
+
+    if (ownerOtp === "123456") {
+      setOwnerOtpSent(false);
+      setOwnerOtp("");
+
+      setOwnerLoggedIn(true);
+      setPage("owner-dashboard");
+    } else {
+      alert("Invalid OTP. For this prototype, use 123456.");
+    }
+  };
+
+  // =========================
+  // OFFICER LOGIN
+  // =========================
+
+  const sendOfficerOtp = (e) => {
+    e.preventDefault();
+
+    setOfficerOtpSent(true);
+  };
+
+  // =========================
+  // OFFICER OTP
+  // =========================
+
+  const verifyOfficerOtp = (e) => {
+    e.preventDefault();
+
+    if (
+      officerOtpMobile === "123456" &&
+      officerOtpEmail === "123456"
+    ) {
+      setOfficerOtpSent(false);
+
+      setOfficerLoggedIn(true);
+
+      setPage("officer-dashboard");
+    } else {
+      alert("For this prototype, use 123456 for both OTPs.");
+    }
+  };
+
+  // =========================
+  // QR CAMERA
+  // =========================
+
+  const startScanner = async () => {
+    setCameraError("");
+    setVerificationResult(null);
+
+    try {
+      const scanner = new Html5Qrcode("qr-reader");
+
+      scannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: 250,
+        },
+        async (decodedText) => {
+          setVerificationResult({
+            success: true,
+            text: decodedText,
+          });
+
+          try {
+            await scanner.stop();
+          } catch (error) {
+            console.log(error);
+          }
+
+          scannerRef.current = null;
+          setCameraRunning(false);
+        },
+        () => {}
+      );
+
+      setCameraRunning(true);
+    } catch (error) {
+      console.log(error);
+
+      setCameraError(
+        "Camera could not be started. Please use image upload instead."
+      );
+
+      setCameraRunning(false);
+      scannerRef.current = null;
+    }
+  };
+
+  // =========================
+  // STOP SCANNER
+  // =========================
+
+  const stopScanner = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+      } catch (error) {
+        console.log(error);
+      }
+
+      scannerRef.current = null;
+    }
+
+    setCameraRunning(false);
+  };
+
+  // =========================
+  // QR IMAGE SCAN
+  // =========================
+
+  const scanImage = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    setVerificationResult(null);
+
+    const scanner = new Html5Qrcode("qr-file-reader");
+
+    try {
+      const decodedText = await scanner.scanFile(file, true);
+
+      setVerificationResult({
+        success: true,
+        text: decodedText,
+      });
+    } catch (error) {
+      console.log(error);
+
+      setVerificationResult({
+        success: false,
+        text: "No valid QR code was found in this image.",
+      });
+    }
+
+    e.target.value = "";
+  };
+
+  // =========================
+  // DEVICE IMAGE UPLOAD
+  // =========================
+
+  const handleImageUpload = (e, field) => {
+    const file = e.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    setVerificationData((previous) => ({
+      ...previous,
+      [field]: file,
+    }));
+  };
+
+  // =========================
+  // DEVICE VERIFICATION
+  // =========================
+
+  const verifyDevice = (e) => {
+    e.preventDefault();
+
+    setVerificationResult({
+      success: true,
+      text: "Device verification submitted successfully.",
+    });
+  };
+
+  // ============================================================
+  // UI
+  // ============================================================
 
   return (
     <div className="app">
 
+      {/* ================= NAVBAR ================= */}
 
-      {/* HEADER */}
+      <header className="navbar">
 
-      <header className="header">
-
-        <div className="logo">
-
-          <div className="logo-icon">
+        <div
+          className="brand"
+          onClick={goHome}
+        >
+          <div className="brand-shield">
             ✓
           </div>
 
           <div>
-
-            <div className="logo-name">
-              MAAP360
-            </div>
-
-            <div className="logo-subtitle">
-              LEGAL METROLOGY
-            </div>
-
+            <h1>MAAP360</h1>
+            <span>LEGAL METROLOGY</span>
           </div>
+        </div>
+
+        <div className="nav-links">
+
+          <button onClick={goHome}>
+            Home
+          </button>
+
+          <button
+            onClick={() => setPage("about")}
+          >
+            About
+          </button>
+
+          <button
+            onClick={() => setPage("contact")}
+          >
+            Contact
+          </button>
 
         </div>
 
       </header>
 
-
-      {/* ================= HOME ================= */}
+      {/* ================================================= */}
+      {/* HOME */}
+      {/* ================================================= */}
 
       {page === "home" && (
 
-        <main className="home-page">
+        <main className="main-container">
 
-          <div className="home-content">
+          <section className="hero-section">
 
-            <div className="badge">
-              DIGITAL VERIFICATION PLATFORM
-            </div>
+            <div className="hero-text">
 
-            <h1>
-              Stamp of Trust,
-              <br />
-              <span>Seal of Accuracy.</span>
-            </h1>
+              <div className="eyebrow">
+                DIGITAL VERIFICATION PLATFORM
+              </div>
 
-            <p>
-              MAAP360 provides a digital platform for
-              verification and management of weighing
-              and measuring instruments.
-            </p>
+              <h2>
+                Stamp of Trust,
+                <br />
+                <span>Seal of Accuracy.</span>
+              </h2>
 
-
-            <div className="home-options">
-
-
-              {/* OPTION 1 */}
-
-              <button
-                className="home-option"
-                onClick={() => setPage("qr")}
-              >
-
-                <div className="option-number">
-                  01
-                </div>
-
-                <div>
-
-                  <h2>
-                    Scan QR & Verify
-                  </h2>
-
-                  <p>
-                    Scan or enter the QR details of a device
-                    to verify its information.
-                  </p>
-
-                </div>
-
-                <span className="arrow">
-                  →
-                </span>
-
-              </button>
-
-
-              {/* OPTION 2 */}
-
-              <button
-                className="home-option"
-                onClick={() => {
-                  setPage("owner");
-                  setOwnerScreen("choice");
-                }}
-              >
-
-                <div className="option-number">
-                  02
-                </div>
-
-                <div>
-
-                  <h2>
-                    Instrument Owner Dashboard
-                  </h2>
-
-                  <p>
-                    Register instruments and manage
-                    verification details.
-                  </p>
-
-                </div>
-
-                <span className="arrow">
-                  →
-                </span>
-
-              </button>
-
-
-              {/* OPTION 3 */}
-
-              <button
-                className="home-option"
-                onClick={() => setPage("officer")}
-              >
-
-                <div className="option-number">
-                  03
-                </div>
-
-                <div>
-
-                  <h2>
-                    Government Officer Dashboard
-                  </h2>
-
-                  <p>
-                    Government officers can log in and
-                    verify registered devices.
-                  </p>
-
-                </div>
-
-                <span className="arrow">
-                  →
-                </span>
-
-              </button>
-
-
-              {/* OPTION 4 */}
-
-              <button
-                className="home-option"
-                onClick={() => setPage("report")}
-              >
-
-                <div className="option-number">
-                  04
-                </div>
-
-                <div>
-
-                  <h2>
-                    Report a Device
-                  </h2>
-
-                  <p>
-                    Report a weighing or measuring device.
-                  </p>
-
-                </div>
-
-                <span className="arrow">
-                  →
-                </span>
-
-              </button>
-
+              <p>
+                MAAP360 provides a digital platform for
+                verification and management of weighing
+                and measuring instruments.
+              </p>
 
             </div>
 
-          </div>
+            <div className="hero-graphic">
+
+              <div className="graphic-circle"></div>
+
+              <div className="instrument-graphic">
+
+                <div className="instrument-top"></div>
+
+                <div className="instrument-body">
+
+                  <div className="display">
+                    0000
+                  </div>
+
+                  <div className="buttons">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="qr-graphic">
+                QR
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* SIX HOME OPTIONS */}
+
+          <section className="home-options">
+
+            <button
+              className="home-card"
+              onClick={() => setPage("scanner")}
+            >
+              <div className="home-icon">
+                ⌕
+              </div>
+
+              <div>
+                <h3>
+                  Scan QR & Verify
+                </h3>
+
+                <p>
+                  Check instrument authenticity
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+            <button
+              className="home-card"
+              onClick={() => setPage("owner")}
+            >
+              <div className="home-icon">
+                ●
+              </div>
+
+              <div>
+                <h3>
+                  Instrument Owner Dashboard
+                </h3>
+
+                <p>
+                  Manage registered instruments
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+            <button
+              className="home-card"
+              onClick={() => setPage("officer-login")}
+            >
+              <div className="home-icon">
+                ◆
+              </div>
+
+              <div>
+                <h3>
+                  Government Officer Dashboard
+                </h3>
+
+                <p>
+                  Verify registered devices
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+            <button
+              className="home-card"
+              onClick={() => setPage("report")}
+            >
+              <div className="home-icon">
+                ▣
+              </div>
+
+              <div>
+                <h3>
+                  Report a Device
+                </h3>
+
+                <p>
+                  Report a device
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+            <button
+              className="home-card"
+              onClick={() => setPage("about")}
+            >
+              <div className="home-icon">
+                ✓
+              </div>
+
+              <div>
+                <h3>
+                  About MAAP360
+                </h3>
+
+                <p>
+                  Learn about our platform
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+            <button
+              className="home-card"
+              onClick={() => setPage("contact")}
+            >
+              <div className="home-icon">
+                ✉
+              </div>
+
+              <div>
+                <h3>
+                  Contact Us
+                </h3>
+
+                <p>
+                  Get in touch with our team
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+          </section>
 
         </main>
-
       )}
 
-
-      {/* ================= QR PAGE ================= */}
-
-      {page === "qr" && (
-
-        <div className="page">
-
-          <button
-            className="back-button"
-            onClick={() => setPage("home")}
-          >
-            ← Back to Home
-          </button>
-
-          <QrVerificationPage instruments={instruments} />
-
-        </div>
-
-      )}
-
-
-      {/* ================= OWNER ================= */}
+      {/* ================================================= */}
+      {/* OWNER SIGN IN / LOGIN */}
+      {/* ================================================= */}
 
       {page === "owner" && (
 
-        <div className="page">
+        <main className="page-container">
 
           <button
             className="back-button"
-            onClick={() => setPage("home")}
+            onClick={goHome}
           >
             ← Back to Home
           </button>
 
+          <section className="form-card">
 
-          {/* OWNER CHOICE */}
+            <div className="tabs">
 
-          {ownerScreen === "choice" && (
+              <button
+                className={
+                  ownerMode === "signin"
+                    ? "active"
+                    : ""
+                }
+                onClick={() => {
+                  setOwnerMode("signin");
+                  setOwnerOtpSent(false);
+                }}
+              >
+                Sign In
+              </button>
 
-            <div className="simple-card">
-
-              <div className="section-label">
-                INSTRUMENT OWNER
-              </div>
-
-              <h1>
-                Instrument Owner Dashboard
-              </h1>
-
-              <p>
-                Create an owner account or login to your
-                existing MAAP360 account.
-              </p>
-
-
-              <div className="two-options">
-
-
-                <button
-                  className="dashboard-option"
-                  onClick={() => setOwnerScreen("signup")}
-                >
-
-                  <h2>
-                    Sign In
-                  </h2>
-
-                  <p>
-                    Create your MAAP360 instrument owner
-                    account.
-                  </p>
-
-                </button>
-
-
-                <button
-                  className="dashboard-option"
-                  onClick={() => setOwnerScreen("login")}
-                >
-
-                  <h2>
-                    Login
-                  </h2>
-
-                  <p>
-                    Login using your Owner ID and password.
-                  </p>
-
-                </button>
-
-
-              </div>
+              <button
+                className={
+                  ownerMode === "login"
+                    ? "active"
+                    : ""
+                }
+                onClick={() => {
+                  setOwnerMode("login");
+                  setOwnerOtpSent(false);
+                }}
+              >
+                Login
+              </button>
 
             </div>
 
-          )}
+            {/* OWNER REGISTRATION */}
 
+            {ownerMode === "signin" && !ownerOtpSent && (
 
-          {/* ================= SIGN IN / REGISTRATION ================= */}
+              <form onSubmit={sendOwnerRegistrationOtp}>
 
-          {ownerScreen === "signup" && (
-
-            <div className="form-card">
-
-              <button
-                className="back-button"
-                onClick={() => setOwnerScreen("choice")}
-              >
-                ← Back
-              </button>
-
-
-              <div className="section-label">
-                OWNER REGISTRATION
-              </div>
-
-              <h1>
-                Create Instrument Owner Account
-              </h1>
-
-              <p className="form-description">
-                Enter your details to create a MAAP360
-                instrument owner account.
-              </p>
-
-
-              <form onSubmit={registerOwner}>
-
-
-                <label>
-                  Name
-                </label>
+                <h2>
+                  Instrument Owner Registration
+                </h2>
 
                 <input
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={ownerName}
-                  onChange={(e) =>
-                    setOwnerName(e.target.value)
-                  }
                   required
+                  placeholder="Full Name"
+                  value={ownerData.name}
+                  onChange={(e) =>
+                    setOwnerData({
+                      ...ownerData,
+                      name: e.target.value,
+                    })
+                  }
                 />
 
-
-                <label>
-                  Phone Number
-                </label>
-
                 <input
-                  type="tel"
-                  placeholder="Enter mobile number"
-                  value={phone}
-                  onChange={(e) =>
-                    setPhone(e.target.value)
-                  }
                   required
+                  placeholder="Phone Number"
+                  value={ownerData.phone}
+                  onChange={(e) =>
+                    setOwnerData({
+                      ...ownerData,
+                      phone: e.target.value,
+                    })
+                  }
                 />
 
-
-                <label>
-                  Email
-                </label>
-
                 <input
+                  required
                   type="email"
-                  placeholder="Enter email address"
-                  value={email}
+                  placeholder="Email Address"
+                  value={ownerData.email}
                   onChange={(e) =>
-                    setEmail(e.target.value)
+                    setOwnerData({
+                      ...ownerData,
+                      email: e.target.value,
+                    })
                   }
-                  required
                 />
-
-
-                <label>
-                  Shop Name
-                </label>
 
                 <input
-                  type="text"
-                  placeholder="Enter shop name"
-                  value={shopName}
-                  onChange={(e) =>
-                    setShopName(e.target.value)
-                  }
                   required
+                  placeholder="Shop Name"
+                  value={ownerData.shopName}
+                  onChange={(e) =>
+                    setOwnerData({
+                      ...ownerData,
+                      shopName: e.target.value,
+                    })
+                  }
                 />
 
-
-                <label>
-                  Shop Type
-                </label>
+                {/* SHOP TYPE */}
 
                 <select
-                  value={shopType}
-                  onChange={(e) =>
-                    setShopType(e.target.value)
-                  }
                   required
+                  value={ownerData.shopType}
+                  onChange={(e) =>
+                    setOwnerData({
+                      ...ownerData,
+                      shopType: e.target.value,
+                    })
+                  }
                 >
 
                   <option value="">
-                    Select shop type
+                    Select Shop Type
                   </option>
 
-                  <option value="Retail Shop">
-                    Retail Shop
+                  <option value="General Store">
+                    General Store
                   </option>
 
-                  <option value="Wholesale Shop">
-                    Wholesale Shop
+                  <option value="Grocery Store">
+                    Grocery Store
                   </option>
 
-                  <option value="Manufacturing Unit">
-                    Manufacturing Unit
+                  <option value="Supermarket">
+                    Supermarket
+                  </option>
+
+                  <option value="Medical Store">
+                    Medical Store
+                  </option>
+
+                  <option value="Hardware Store">
+                    Hardware Store
+                  </option>
+
+                  <option value="Electronics Store">
+                    Electronics Store
                   </option>
 
                   <option value="Other">
@@ -711,37 +751,37 @@ function App() {
 
                 </select>
 
-
-                <label>
-                  Business Type
-                </label>
+                {/* BUSINESS TYPE */}
 
                 <select
-                  value={businessType}
-                  onChange={(e) =>
-                    setBusinessType(e.target.value)
-                  }
                   required
+                  value={ownerData.businessType}
+                  onChange={(e) =>
+                    setOwnerData({
+                      ...ownerData,
+                      businessType: e.target.value,
+                    })
+                  }
                 >
 
                   <option value="">
-                    Select business type
-                  </option>
-
-                  <option value="Grocery">
-                    Grocery
+                    Select Business Type
                   </option>
 
                   <option value="Retail">
                     Retail
                   </option>
 
+                  <option value="Wholesale">
+                    Wholesale
+                  </option>
+
                   <option value="Manufacturing">
                     Manufacturing
                   </option>
 
-                  <option value="Trading">
-                    Trading
+                  <option value="Service">
+                    Service
                   </option>
 
                   <option value="Other">
@@ -750,224 +790,1042 @@ function App() {
 
                 </select>
 
-
-                <label>
-                  Address
-                </label>
-
-                <textarea
-                  placeholder="Enter complete shop address"
-                  value={address}
-                  onChange={(e) =>
-                    setAddress(e.target.value)
-                  }
-                  required
-                />
-
-
-                <label>
-                  Set Password
-                </label>
+                {/* GST NUMBER */}
 
                 <input
-                  type="password"
-                  placeholder="Create your password"
-                  value={password}
+                  placeholder="GST Number (Optional)"
+                  value={ownerData.gstNo}
                   onChange={(e) =>
-                    setPassword(e.target.value)
+                    setOwnerData({
+                      ...ownerData,
+                      gstNo: e.target.value.toUpperCase(),
+                    })
                   }
-                  required
                 />
 
+                <input
+                  required
+                  placeholder="Address"
+                  value={ownerData.address}
+                  onChange={(e) =>
+                    setOwnerData({
+                      ...ownerData,
+                      address: e.target.value,
+                    })
+                  }
+                />
+
+                <input
+                  required
+                  type="password"
+                  placeholder="Set Password"
+                  value={ownerPassword}
+                  onChange={(e) =>
+                    setOwnerPassword(e.target.value)
+                  }
+                />
 
                 <button
+                  className="primary-button"
                   type="submit"
-                  className="primary-form-button"
                 >
-                  Create Owner Account
+                  Verify Mobile & Register
                 </button>
 
               </form>
+            )}
 
-            </div>
+            {/* OWNER REGISTRATION OTP */}
 
-          )}
+            {ownerMode === "signin" && ownerOtpSent && (
 
+              <div className="otp-section">
 
-          {/* ================= REGISTRATION SUCCESS ================= */}
+                <h2>
+                  Verify Mobile Number
+                </h2>
 
-          {ownerScreen === "registered" && (
+                <p>
+                  An OTP has been sent to your
+                  registered mobile number.
+                </p>
 
-            <div className="form-card success-card">
+                <p>
+                  <strong>
+                    Demo OTP: 123456
+                  </strong>
+                </p>
 
-              <div className="success-icon">
-                ✓
-              </div>
-
-              <div className="section-label">
-                REGISTRATION SUCCESSFUL
-              </div>
-
-              <h1>
-                Owner Account Created
-              </h1>
-
-              <p>
-                Your unique MAAP360 Owner ID has been
-                generated.
-              </p>
-
-
-              <div className="owner-id-box">
-
-                <small>
-                  YOUR UNIQUE OWNER ID
-                </small>
-
-                <strong>
-                  {ownerId}
-                </strong>
-
-              </div>
-
-
-              <p className="important-note">
-                Keep this Owner ID safe. It will be required
-                whenever you login to MAAP360.
-              </p>
-
-
-              <button
-                className="primary-form-button"
-                onClick={() => {
-                  setOwnerScreen("login");
-                  setLoginOwnerId(ownerId);
-                  setLoginPassword("");
-                }}
-              >
-                Continue to Login
-              </button>
-
-            </div>
-
-          )}
-
-
-          {/* ================= OWNER LOGIN ================= */}
-
-          {ownerScreen === "login" && (
-
-            <div className="form-card">
-
-              <button
-                className="back-button"
-                onClick={() => setOwnerScreen("choice")}
-              >
-                ← Back
-              </button>
-
-
-              <div className="section-label">
-                OWNER LOGIN
-              </div>
-
-              <h1>
-                Login
-              </h1>
-
-              <p className="form-description">
-                Enter your Owner ID and password to continue.
-              </p>
-
-
-              <label>
-                Owner ID
-              </label>
-
-              <input
-                type="text"
-                placeholder="Example: MAAP-123456"
-                value={loginOwnerId}
-                onChange={(e) =>
-                  setLoginOwnerId(e.target.value)
-                }
-              />
-
-
-              <label>
-                Password
-              </label>
-
-              <input
-                type="password"
-                placeholder="Enter password"
-                value={loginPassword}
-                onChange={(e) =>
-                  setLoginPassword(e.target.value)
-                }
-              />
-
-
-              {loginError && (
-
-                <div className="error-message">
-                  {loginError}
-                </div>
-
-              )}
-
-
-              {!otpSent && (
-
-                <button
-                  className="primary-form-button"
-                  onClick={sendOtp}
+                <form
+                  onSubmit={
+                    verifyOwnerRegistrationOtp
+                  }
                 >
-                  Continue
-                </button>
-
-              )}
-
-
-              {/* OTP */}
-
-              {otpSent && (
-
-                <div className="otp-section">
-
-                  <div className="otp-message">
-
-                    OTP has been sent to your
-                    registered mobile number.
-
-                  </div>
-
-                  <label>
-                    Enter OTP
-                  </label>
 
                   <input
-                    type="text"
-                    placeholder="Enter 6 digit OTP"
+                    required
                     maxLength="6"
-                    value={otp}
+                    inputMode="numeric"
+                    placeholder="Enter 6 digit OTP"
+                    value={ownerOtp}
                     onChange={(e) =>
-                      setOtp(e.target.value)
+                      setOwnerOtp(
+                        e.target.value.replace(
+                          /\D/g,
+                          ""
+                        )
+                      )
                     }
                   />
 
+                  <button
+                    className="primary-button"
+                    type="submit"
+                  >
+                    Verify OTP & Generate Owner ID
+                  </button>
+
+                </form>
+
+                <button
+                  className="secondary-button"
+                  onClick={() => {
+                    setOwnerOtpSent(false);
+                    setOwnerOtp("");
+                  }}
+                >
+                  ← Edit Registration Details
+                </button>
+
+              </div>
+            )}
+
+            {/* OWNER LOGIN */}
+
+            {ownerMode === "login" && !ownerOtpSent && (
+
+              <form onSubmit={sendOwnerOtp}>
+
+                <h2>
+                  Instrument Owner Login
+                </h2>
+
+                <input
+                  required
+                  placeholder="Owner ID"
+                  value={ownerLoginId}
+                  onChange={(e) =>
+                    setOwnerLoginId(e.target.value)
+                  }
+                />
+
+                <input
+                  required
+                  type="password"
+                  placeholder="Password"
+                  value={ownerLoginPassword}
+                  onChange={(e) =>
+                    setOwnerLoginPassword(e.target.value)
+                  }
+                />
+
+                <button
+                  className="primary-button"
+                  type="submit"
+                >
+                  Send OTP
+                </button>
+
+              </form>
+            )}
+
+            {/* OWNER LOGIN OTP */}
+
+            {ownerMode === "login" && ownerOtpSent && (
+
+              <div className="otp-section">
+
+                <h2>
+                  Verify OTP
+                </h2>
+
+                <p>
+                  Enter the OTP sent to your
+                  registered mobile number.
+                </p>
+
+                <p>
+                  <strong>
+                    Demo OTP: 123456
+                  </strong>
+                </p>
+
+                <form onSubmit={verifyOwnerOtp}>
+
+                  <input
+                    required
+                    maxLength="6"
+                    inputMode="numeric"
+                    placeholder="Enter 6 digit OTP"
+                    value={ownerOtp}
+                    onChange={(e) =>
+                      setOwnerOtp(
+                        e.target.value.replace(
+                          /\D/g,
+                          ""
+                        )
+                      )
+                    }
+                  />
 
                   <button
-                    className="primary-form-button"
-                    onClick={verifyOtp}
+                    className="primary-button"
+                    type="submit"
                   >
                     Verify OTP & Login
                   </button>
 
+                </form>
 
-                  <div className="demo-otp">
-                    Demo OTP: <strong>123456</strong>
+              </div>
+            )}
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* OWNER SUCCESS */}
+      {/* ================================================= */}
+
+      {page === "owner-success" && (
+
+        <main className="page-container">
+
+          <button
+            className="back-button"
+            onClick={goHome}
+          >
+            ← Back to Home
+          </button>
+
+          <section className="success-card">
+
+            <div className="success-circle">
+              ✓
+            </div>
+
+            <h2>
+              Registration Successful!
+            </h2>
+
+            <p>
+              Your mobile number has been verified.
+            </p>
+
+            <p>
+              Your unique MAAP360 Owner ID has
+              now been generated.
+            </p>
+
+            <div className="owner-id-box">
+
+              <span>
+                Owner ID
+              </span>
+
+              <strong>
+                {ownerId}
+              </strong>
+
+            </div>
+
+            <p>
+              Save this Owner ID. You will need it
+              together with your password to login.
+            </p>
+
+            <button
+              className="primary-button"
+              onClick={() => {
+                setOwnerMode("login");
+                setOwnerOtpSent(false);
+                setOwnerOtp("");
+                setPage("owner");
+              }}
+            >
+              Login to Continue
+            </button>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* OWNER DASHBOARD */}
+      {/* ================================================= */}
+
+      {page === "owner-dashboard" && ownerLoggedIn && (
+
+        <main className="dashboard-container">
+
+          <aside className="sidebar">
+
+            <div className="sidebar-title">
+              MAAP360
+            </div>
+
+            <button className="selected">
+              Dashboard
+            </button>
+
+            <button>
+              My Instruments
+            </button>
+
+            <button>
+              Shop Details
+            </button>
+
+            <button>
+              Profile
+            </button>
+
+            <button onClick={goHome}>
+              Logout
+            </button>
+
+          </aside>
+
+          <section className="dashboard-content">
+
+            <div className="dashboard-header">
+
+              <h2>
+                Instrument Owner Dashboard
+              </h2>
+
+              <span>
+                {ownerId}
+              </span>
+
+            </div>
+
+            {/* WELCOME */}
+
+            <div className="welcome-card">
+
+              <div className="shop-graphic">
+                ⌂
+              </div>
+
+              <div>
+
+                <h2>
+                  Welcome,{" "}
+                  {ownerData.name || "Shop Owner"}!
+                </h2>
+
+                <p>
+                  {ownerData.shopName ||
+                    "Registered Shop"}
+                </p>
+
+                <p>
+                  {ownerData.phone ||
+                    "Registered Mobile"}
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* OWNER DETAILS */}
+
+            <div className="simple-card owner-details-card">
+
+              <h2>
+                Owner & Shop Details
+              </h2>
+
+              <div className="details-grid">
+
+                <div>
+                  <span>Owner ID</span>
+                  <strong>{ownerId}</strong>
+                </div>
+
+                <div>
+                  <span>Full Name</span>
+                  <strong>{ownerData.name}</strong>
+                </div>
+
+                <div>
+                  <span>Phone Number</span>
+                  <strong>{ownerData.phone}</strong>
+                </div>
+
+                <div>
+                  <span>Email Address</span>
+                  <strong>{ownerData.email}</strong>
+                </div>
+
+                <div>
+                  <span>Shop Name</span>
+                  <strong>{ownerData.shopName}</strong>
+                </div>
+
+                <div>
+                  <span>Shop Type</span>
+                  <strong>{ownerData.shopType}</strong>
+                </div>
+
+                <div>
+                  <span>Business Type</span>
+                  <strong>{ownerData.businessType}</strong>
+                </div>
+
+                <div>
+                  <span>GST Number</span>
+                  <strong>
+                    {ownerData.gstNo ||
+                      "Not Provided"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Address</span>
+                  <strong>{ownerData.address}</strong>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* STATISTICS */}
+
+            <div className="statistics">
+
+              <div className="stat-card">
+
+                <span>
+                  Total Registered Instruments
+                </span>
+
+                <strong>
+                  {instruments.length}
+                </strong>
+
+              </div>
+
+              <div className="stat-card">
+
+                <span>
+                  Total Actively Verified Instruments
+                </span>
+
+                <strong>
+                  {
+                    instruments.filter(
+                      (item) =>
+                        item.status ===
+                        "ACTIVELY VERIFIED"
+                    ).length
+                  }
+                </strong>
+
+              </div>
+
+              <div className="stat-card">
+
+                <span>
+                  Expired Instruments
+                </span>
+
+                <strong>
+                  {
+                    instruments.filter(
+                      (item) =>
+                        item.status === "EXPIRED"
+                    ).length
+                  }
+                </strong>
+
+              </div>
+
+              <div className="stat-card">
+
+                <span>
+                  Instruments Expiring This Month
+                </span>
+
+                <strong>
+                  {
+                    instruments.filter(
+                      (item) =>
+                        item.status ===
+                        "EXPIRING THIS MONTH"
+                    ).length
+                  }
+                </strong>
+
+              </div>
+
+            </div>
+
+            {/* INSTRUMENTS */}
+
+            <section className="instrument-section">
+
+              <h2>
+                Registered Instruments
+              </h2>
+
+              {instruments.map((instrument) => (
+
+                <div
+                  className="instrument-card"
+                  key={instrument.id}
+                >
+
+                  <div className="instrument-mini-graphic">
+                    ⚖
                   </div>
+
+                  <div className="instrument-info">
+
+                    <strong>
+                      {instrument.id}
+                    </strong>
+
+                    <span>
+                      {instrument.category}
+                    </span>
+
+                    <small>
+                      Verification Date:{" "}
+                      {instrument.verificationDate}
+                    </small>
+
+                    <small>
+                      Expiry Date:{" "}
+                      {instrument.expiryDate}
+                    </small>
+
+                  </div>
+
+                  <div
+                    className={
+                      "status " +
+                      instrument.status
+                        .toLowerCase()
+                        .replaceAll(" ", "-")
+                    }
+                  >
+                    {instrument.status}
+                  </div>
+
+                </div>
+
+              ))}
+
+            </section>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* GOVERNMENT OFFICER LOGIN */}
+      {/* ================================================= */}
+
+      {page === "officer-login" && (
+
+        <main className="page-container">
+
+          <button
+            className="back-button"
+            onClick={goHome}
+          >
+            ← Back to Home
+          </button>
+
+          <section className="form-card">
+
+            <h2>
+              Government Officer Login
+            </h2>
+
+            <form onSubmit={sendOfficerOtp}>
+
+              <input
+                required
+                placeholder="Login ID"
+                value={officerLoginId}
+                onChange={(e) =>
+                  setOfficerLoginId(e.target.value)
+                }
+              />
+
+              <input
+                required
+                type="password"
+                placeholder="Password"
+                value={officerPassword}
+                onChange={(e) =>
+                  setOfficerPassword(e.target.value)
+                }
+              />
+
+              <button
+                className="primary-button"
+                type="submit"
+              >
+                Continue to Two-Factor Authentication
+              </button>
+
+            </form>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* OFFICER 2FA */}
+      {/* ================================================= */}
+
+      {page === "officer-login" && officerOtpSent && (
+
+        <div className="modal-overlay">
+
+          <section className="otp-card">
+
+            <h2>
+              Two-Factor Authentication
+            </h2>
+
+            <p>
+              Enter the OTP received separately on
+              the registered mobile number and email.
+            </p>
+
+            <p>
+              <strong>
+                Demo OTP: 123456
+              </strong>
+            </p>
+
+            <form onSubmit={verifyOfficerOtp}>
+
+              <input
+                required
+                maxLength="6"
+                inputMode="numeric"
+                placeholder="Mobile OTP"
+                value={officerOtpMobile}
+                onChange={(e) =>
+                  setOfficerOtpMobile(
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    )
+                  )
+                }
+              />
+
+              <input
+                required
+                maxLength="6"
+                inputMode="numeric"
+                placeholder="Email OTP"
+                value={officerOtpEmail}
+                onChange={(e) =>
+                  setOfficerOtpEmail(
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    )
+                  )
+                }
+              />
+
+              <button
+                className="primary-button"
+                type="submit"
+              >
+                Verify & Login
+              </button>
+
+            </form>
+
+          </section>
+
+        </div>
+      )}
+
+      {/* ================================================= */}
+      {/* OFFICER DASHBOARD */}
+      {/* ================================================= */}
+
+      {page === "officer-dashboard" &&
+        officerLoggedIn && (
+
+        <main className="dashboard-container">
+
+          <aside className="sidebar">
+
+            <div className="sidebar-title">
+              MAAP360
+            </div>
+
+            <button className="selected">
+              Dashboard
+            </button>
+
+            <button
+              onClick={() =>
+                setPage("verify-device")
+              }
+            >
+              Verify a Device
+            </button>
+
+            <button onClick={goHome}>
+              Logout
+            </button>
+
+          </aside>
+
+          <section className="dashboard-content">
+
+            <div className="dashboard-header">
+
+              <h2>
+                Government Officer Dashboard
+              </h2>
+
+            </div>
+
+            <div className="statistics">
+
+              <div className="stat-card">
+
+                <span>
+                  Pending Verifications
+                </span>
+
+                <strong>
+                  12
+                </strong>
+
+              </div>
+
+              <div className="stat-card">
+
+                <span>
+                  Devices Expiring This Month
+                </span>
+
+                <strong>
+                  08
+                </strong>
+
+              </div>
+
+            </div>
+
+            <button
+              className="large-action-button"
+              onClick={() =>
+                setPage("verify-device")
+              }
+            >
+              Verify a Device →
+            </button>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* VERIFY DEVICE */}
+      {/* ================================================= */}
+
+      {page === "verify-device" && (
+
+        <main className="page-container">
+
+          <button
+            className="back-button"
+            onClick={() =>
+              setPage("officer-dashboard")
+            }
+          >
+            ← Back to Dashboard
+          </button>
+
+          <section className="verification-form-card">
+
+            <h2>
+              Verify a Device
+            </h2>
+
+            <p>
+              Enter instrument information and upload
+              the required device, QR and seal images.
+            </p>
+
+            <form onSubmit={verifyDevice}>
+
+              <label>
+                Instrument ID
+              </label>
+
+              <input
+                required
+                placeholder="Enter Instrument ID"
+                value={
+                  verificationData.instrumentId
+                }
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    instrumentId:
+                      e.target.value,
+                  })
+                }
+              />
+
+              <label>
+                Instrument Category
+              </label>
+
+              <input
+                required
+                placeholder="Enter Instrument Category"
+                value={
+                  verificationData.category
+                }
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    category:
+                      e.target.value,
+                  })
+                }
+              />
+
+              <label>
+                Last Verification Date
+              </label>
+
+              <input
+                required
+                type="date"
+                value={
+                  verificationData.lastVerificationDate
+                }
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    lastVerificationDate:
+                      e.target.value,
+                  })
+                }
+              />
+
+              <label>
+                Shop Entries
+              </label>
+
+              <textarea
+                placeholder="Enter all shop details / entries"
+                value={
+                  verificationData.shopEntries
+                }
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    shopEntries:
+                      e.target.value,
+                  })
+                }
+              />
+
+              <label>
+                Instrument Entries
+              </label>
+
+              <textarea
+                placeholder="Enter all instrument details / entries"
+                value={
+                  verificationData.instrumentEntries
+                }
+                onChange={(e) =>
+                  setVerificationData({
+                    ...verificationData,
+                    instrumentEntries:
+                      e.target.value,
+                  })
+                }
+              />
+
+              <div className="upload-grid">
+
+                <label className="upload-box">
+
+                  <span>
+                    Live Image of Device
+                  </span>
+
+                  <input
+                    required
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) =>
+                      handleImageUpload(
+                        e,
+                        "image"
+                      )
+                    }
+                  />
+
+                </label>
+
+                <label className="upload-box">
+
+                  <span>
+                    QR Image
+                  </span>
+
+                  <input
+                    required
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageUpload(
+                        e,
+                        "qrImage"
+                      )
+                    }
+                  />
+
+                </label>
+
+                <label className="upload-box">
+
+                  <span>
+                    Seal Image
+                  </span>
+
+                  <input
+                    required
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageUpload(
+                        e,
+                        "sealImage"
+                      )
+                    }
+                  />
+
+                </label>
+
+              </div>
+
+              <button
+                className="primary-button"
+                type="submit"
+              >
+                Verify Device
+              </button>
+
+            </form>
+
+            {verificationResult && (
+
+              <div
+                className={
+                  verificationResult.success
+                    ? "result-card success"
+                    : "result-card failure"
+                }
+              >
+
+                <strong>
+                  {verificationResult.success
+                    ? "Verification Successful"
+                    : "Verification Failed"}
+                </strong>
+
+                <p>
+                  {verificationResult.text}
+                </p>
+
+              </div>
+
+            )}
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* QR SCANNER */}
+      {/* ================================================= */}
+
+      {page === "scanner" && (
+
+        <main className="page-container">
+
+          <button
+            className="back-button"
+            onClick={goHome}
+          >
+            ← Back to Home
+          </button>
+
+          <section className="scanner-card">
+
+            <h2>
+              Scan QR Code
+            </h2>
+
+            <p>
+              Scan the QR code on the instrument to
+              verify its authenticity.
+            </p>
+
+            <div className="scanner-box">
+
+              <div id="qr-reader"></div>
+
+              {!cameraRunning && (
+
+                <div className="scanner-placeholder">
+
+                  <div className="scanner-graphic">
+                    QR
+                  </div>
+
+                  <h3>
+                    Scan Instrument QR
+                  </h3>
+
+                  <button
+                    className="primary-button"
+                    onClick={startScanner}
+                  >
+                    Start Camera
+                  </button>
 
                 </div>
 
@@ -975,335 +1833,185 @@ function App() {
 
             </div>
 
-          )}
+            {cameraRunning && (
 
+              <button
+                className="secondary-button"
+                onClick={stopScanner}
+              >
+                Stop Scanner
+              </button>
 
-          {/* ================= OWNER DASHBOARD ================= */}
+            )}
 
-          {ownerScreen === "dashboard" && loggedIn && (
+            {cameraError && (
 
-            <div className="owner-dashboard">
-
-
-              <div className="dashboard-header">
-
-                <div>
-
-                  <div className="section-label">
-                    INSTRUMENT OWNER
-                  </div>
-
-                  <h1>
-                    Owner Dashboard
-                  </h1>
-
-                  <p>
-                    Welcome, {ownerName || "Owner"}
-                  </p>
-
-                </div>
-
-
-                <button
-                  className="logout-button"
-                  onClick={logoutOwner}
-                >
-                  Logout
-                </button>
-
+              <div className="camera-message">
+                {cameraError}
               </div>
 
+            )}
 
-              {/* OWNER DETAILS */}
+            <div className="divider">
+              <span>OR</span>
+            </div>
 
-              <div className="owner-details-card">
+            <div className="image-scan">
 
-                <div>
-                  <small>
-                    OWNER ID
-                  </small>
+              <h3>
+                Scan from Image
+              </h3>
 
-                  <strong>
-                    {ownerId}
-                  </strong>
-                </div>
+              <p>
+                Upload an image containing the QR code.
+              </p>
 
-                <div>
-                  <small>
-                    SHOP NAME
-                  </small>
+              <label className="upload-button">
 
-                  <strong>
-                    {shopName}
-                  </strong>
-                </div>
+                Choose Image
 
-                <div>
-                  <small>
-                    PHONE NUMBER
-                  </small>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={scanImage}
+                  hidden
+                />
 
-                  <strong>
-                    {phone}
-                  </strong>
-                </div>
+              </label>
 
-                <div>
-                  <small>
-                    EMAIL
-                  </small>
-
-                  <strong>
-                    {email}
-                  </strong>
-                </div>
-
-                <div>
-                  <small>
-                    ADDRESS
-                  </small>
-
-                  <strong>
-                    {address}
-                  </strong>
-                </div>
-
-              </div>
-
-
-              {/* FOUR STATISTICS */}
-
-              <div className="statistics-grid">
-
-
-                <div className="stat-card">
-
-                  <small>
-                    TOTAL REGISTERED INSTRUMENTS
-                  </small>
-
-                  <strong>
-                    3
-                  </strong>
-
-                </div>
-
-
-                <div className="stat-card active-stat">
-
-                  <small>
-                    ACTIVELY VERIFIED INSTRUMENTS
-                  </small>
-
-                  <strong>
-                    1
-                  </strong>
-
-                </div>
-
-
-                <div className="stat-card expired-stat">
-
-                  <small>
-                    EXPIRED INSTRUMENTS
-                  </small>
-
-                  <strong>
-                    1
-                  </strong>
-
-                </div>
-
-
-                <div className="stat-card warning-stat">
-
-                  <small>
-                    INSTRUMENTS EXPIRING THIS MONTH
-                  </small>
-
-                  <strong>
-                    1
-                  </strong>
-
-                </div>
-
-
-              </div>
-
-
-              {/* INSTRUMENT LIST */}
-
-              <div className="instrument-section">
-
-                <div className="section-label">
-                  REGISTERED INSTRUMENTS
-                </div>
-
-                <h2>
-                  Instrument Details
-                </h2>
-
-
-                <div className="instrument-list">
-
-                  {instruments.map((instrument) => (
-
-                    <div
-                      className="instrument-row"
-                      key={instrument.id}
-                    >
-
-                      <div>
-
-                        <small>
-                          INSTRUMENT ID
-                        </small>
-
-                        <strong>
-                          {instrument.id}
-                        </strong>
-
-                      </div>
-
-
-                      <div>
-
-                        <small>
-                          INSTRUMENT TYPE
-                        </small>
-
-                        <strong>
-                          {instrument.type}
-                        </strong>
-
-                      </div>
-
-
-                      <div>
-
-                        <small>
-                          VERIFICATION DATE
-                        </small>
-
-                        <strong>
-                          {instrument.verificationDate}
-                        </strong>
-
-                      </div>
-
-
-                      <div>
-
-                        <small>
-                          EXPIRING DATE
-                        </small>
-
-                        <strong>
-                          {instrument.expiryDate}
-                        </strong>
-
-                      </div>
-
-
-                      <div>
-
-                        <span
-                          className={
-                            instrument.status === "ACTIVELY VERIFIED"
-                              ? "status active"
-                              : instrument.status === "EXPIRED"
-                                ? "status expired"
-                                : "status warning"
-                          }
-                        >
-                          {instrument.status}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  ))}
-
-                </div>
-
-              </div>
+              <div id="qr-file-reader"></div>
 
             </div>
 
-          )}
+            {verificationResult && (
 
-        </div>
+              <div
+                className={
+                  verificationResult.success
+                    ? "result-card success"
+                    : "result-card failure"
+                }
+              >
 
+                <strong>
+                  {verificationResult.success
+                    ? "QR Code Detected"
+                    : "Verification Failed"}
+                </strong>
+
+                <p>
+                  {verificationResult.text}
+                </p>
+
+              </div>
+
+            )}
+
+          </section>
+
+        </main>
       )}
 
-
-      {/* ================= GOVERNMENT OFFICER ================= */}
-
-      {page === "officer" && (
-
-        <div className="page">
-
-          <button
-            className="back-button"
-            onClick={() => setPage("home")}
-          >
-            ← Back to Home
-          </button>
-
-          <div className="simple-card">
-
-            <div className="section-label">
-              GOVERNMENT
-            </div>
-
-            <h1>
-              Government Officer Dashboard
-            </h1>
-
-            <button className="large-login-button">
-              Login
-            </button>
-
-          </div>
-
-        </div>
-
-      )}
-
-
-      {/* ================= REPORT DEVICE ================= */}
+      {/* ================================================= */}
+      {/* REPORT */}
+      {/* ================================================= */}
 
       {page === "report" && (
 
-        <div className="page">
+        <main className="page-container">
 
           <button
             className="back-button"
-            onClick={() => setPage("home")}
+            onClick={goHome}
           >
             ← Back to Home
           </button>
 
-          <div className="simple-card">
+          <section className="simple-card">
 
-            <div className="section-label">
-              REPORT
-            </div>
-
-            <h1>
+            <h2>
               Report a Device
-            </h1>
+            </h2>
 
             <p>
               Device reporting section.
             </p>
 
-          </div>
+          </section>
 
-        </div>
-
+        </main>
       )}
+
+      {/* ================================================= */}
+      {/* ABOUT */}
+      {/* ================================================= */}
+
+      {page === "about" && (
+
+        <main className="page-container">
+
+          <button
+            className="back-button"
+            onClick={goHome}
+          >
+            ← Back to Home
+          </button>
+
+          <section className="simple-card">
+
+            <h2>
+              About MAAP360
+            </h2>
+
+            <p>
+              MAAP360 is a digital verification platform
+              designed to support transparent verification
+              and management of weighing and measuring
+              instruments.
+            </p>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* CONTACT */}
+      {/* ================================================= */}
+
+      {page === "contact" && (
+
+        <main className="page-container">
+
+          <button
+            className="back-button"
+            onClick={goHome}
+          >
+            ← Back to Home
+          </button>
+
+          <section className="simple-card">
+
+            <h2>
+              Contact Us
+            </h2>
+
+            <p>
+              Contact information for MAAP360.
+            </p>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ================= FOOTER ================= */}
+
+      <footer>
+        <strong>MAAP360</strong>
+        {" "}•{" "}
+        LEGAL METROLOGY
+      </footer>
 
     </div>
   );
