@@ -14,6 +14,8 @@ function App() {
   const [ownerPassword, setOwnerPassword] = useState("");
   const [ownerLoginId, setOwnerLoginId] = useState("");
   const [ownerLoginPassword, setOwnerLoginPassword] = useState("");
+  const [showOwnerPassword, setShowOwnerPassword] = useState(false);
+  const [showOwnerLoginPassword, setShowOwnerLoginPassword] = useState(false);
 
   const [ownerOtp, setOwnerOtp] = useState("");
   const [ownerOtpSent, setOwnerOtpSent] = useState(false);
@@ -37,6 +39,7 @@ function App() {
 
   const [officerLoginId, setOfficerLoginId] = useState("");
   const [officerPassword, setOfficerPassword] = useState("");
+  const [showOfficerPassword, setShowOfficerPassword] = useState(false);
 
   const [officerOtpMobile, setOfficerOtpMobile] = useState("");
   const [officerOtpEmail, setOfficerOtpEmail] = useState("");
@@ -127,16 +130,19 @@ function App() {
   };
 
   // =========================
-  // INPUT VALIDATION
+  // FORM VALIDATION
   // =========================
 
-  const phonePattern = "^[6-9][0-9]{9}$";
-  const emailPattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
+  const phonePattern = /^[6-9][0-9]{9}$/;
   const passwordPattern =
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$";
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,20}$/;
 
-  const handlePhoneChange = (setter, value) => {
-    setter(value.replace(/\\D/g, "").slice(0, 10));
+  const handlePhoneChange = (setter, field, value) => {
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+    setter((previous) => ({
+      ...previous,
+      [field]: digitsOnly,
+    }));
   };
 
   // =========================
@@ -145,6 +151,16 @@ function App() {
 
   const sendOwnerRegistrationOtp = (e) => {
     e.preventDefault();
+
+    if (!phonePattern.test(ownerData.phone)) {
+      alert("Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.");
+      return;
+    }
+
+    if (!passwordPattern.test(ownerPassword)) {
+      alert("Password must be 8–20 characters and include uppercase, lowercase, number, and special character.");
+      return;
+    }
 
     /*
       Prototype OTP.
@@ -191,6 +207,11 @@ function App() {
   const sendOwnerOtp = (e) => {
     e.preventDefault();
 
+    if (!passwordPattern.test(ownerLoginPassword)) {
+      alert("Password must be 8–20 characters and include uppercase, lowercase, number, and special character.");
+      return;
+    }
+
     if (
       ownerLoginId === ownerId &&
       ownerLoginPassword === ownerPassword
@@ -226,6 +247,11 @@ function App() {
 
   const sendOfficerOtp = (e) => {
     e.preventDefault();
+
+    if (!passwordPattern.test(officerPassword)) {
+      alert("Password must be 8–20 characters and include uppercase, lowercase, number, and special character.");
+      return;
+    }
 
     setOfficerOtpSent(true);
   };
@@ -717,36 +743,26 @@ function App() {
 
                 <input
                   required
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength="10"
-                  pattern={phonePattern}
-                  title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9."
-                  placeholder="Phone Number (10 digits)"
+                  placeholder="Phone Number"
                   value={ownerData.phone}
                   onChange={(e) =>
-                    handlePhoneChange(
-                      (value) =>
-                        setOwnerData({
-                          ...ownerData,
-                          phone: value,
-                        }),
-                      e.target.value
-                    )
+                    handlePhoneChange(setOwnerData, "phone", e.target.value)
                   }
+                  inputMode="numeric"
+                  maxLength={10}
+                  pattern="[6-9][0-9]{9}"
+                  title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9."
                 />
 
                 <input
                   required
                   type="email"
-                  pattern={emailPattern}
-                  title="Enter a valid email address, for example name@example.com."
                   placeholder="Email Address"
                   value={ownerData.email}
                   onChange={(e) =>
                     setOwnerData({
                       ...ownerData,
-                      email: e.target.value.trim(),
+                      email: e.target.value,
                     })
                   }
                 />
@@ -874,21 +890,35 @@ function App() {
                   }
                 />
 
-                <input
-                  required
-                  type="password"
-                  minLength="8"
-                  pattern={passwordPattern}
-                  title="Password must be at least 8 characters and include uppercase, lowercase, number and special character."
-                  placeholder="Set Password (8+ chars)"
-                  value={ownerPassword}
-                  onChange={(e) =>
-                    setOwnerPassword(e.target.value)
-                  }
-                />
-                <small className="field-hint">
-                  Use 8+ characters with uppercase, lowercase, number and special character.
-                </small>
+                <div className="password-field" style={{position: "relative"}}>
+                  <input
+                    required
+                    type={showOwnerPassword ? "text" : "password"}
+                    placeholder="Set Password"
+                    style={{paddingRight: "48px"}}
+                    minLength={8}
+                    maxLength={20}
+                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,20}"
+                    title="Password must be 8–20 characters and include uppercase, lowercase, number, and special character."
+                    value={ownerPassword}
+                    onChange={(e) =>
+                      setOwnerPassword(e.target.value)
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    style={{position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", padding: "4px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}}
+                    onClick={() => setShowOwnerPassword(!showOwnerPassword)}
+                    aria-label={showOwnerPassword ? "Hide password" : "Show password"}
+                    title={showOwnerPassword ? "Hide password" : "Show password"}
+                  >
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M2.1 12s3.5-6 9.9-6 9.9 6 9.9 6-3.5 6-9.9 6-9.9-6-9.9-6Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+                      <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.8"/>
+                    </svg>
+                  </button>
+                </div>
 
                 <button
                   className="primary-button"
@@ -984,16 +1014,35 @@ function App() {
                   }
                 />
 
-                <input
-                  required
-                  type="password"
-                  minLength="8"
-                  placeholder="Password"
-                  value={ownerLoginPassword}
-                  onChange={(e) =>
-                    setOwnerLoginPassword(e.target.value)
-                  }
-                />
+                <div className="password-field" style={{position: "relative"}}>
+                  <input
+                    required
+                    type={showOwnerLoginPassword ? "text" : "password"}
+                    placeholder="Password"
+                    style={{paddingRight: "48px"}}
+                    minLength={8}
+                    maxLength={20}
+                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,20}"
+                    title="Password must be 8–20 characters and include uppercase, lowercase, number, and special character."
+                    value={ownerLoginPassword}
+                    onChange={(e) =>
+                      setOwnerLoginPassword(e.target.value)
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    style={{position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", padding: "4px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}}
+                    onClick={() => setShowOwnerLoginPassword(!showOwnerLoginPassword)}
+                    aria-label={showOwnerLoginPassword ? "Hide password" : "Show password"}
+                    title={showOwnerLoginPassword ? "Hide password" : "Show password"}
+                  >
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M2.1 12s3.5-6 9.9-6 9.9 6 9.9 6-3.5 6-9.9 6-9.9-6-9.9-6Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+                      <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.8"/>
+                    </svg>
+                  </button>
+                </div>
 
                 <button
                   className="primary-button"
@@ -1436,15 +1485,31 @@ function App() {
                 }
               />
 
-              <input
-                required
-                type="password"
-                placeholder="Password"
-                value={officerPassword}
-                onChange={(e) =>
-                  setOfficerPassword(e.target.value)
-                }
-              />
+              <div className="password-field" style={{position: "relative"}}>
+                <input
+                  required
+                  type={showOfficerPassword ? "text" : "password"}
+                  placeholder="Password"
+                  style={{paddingRight: "48px"}}
+                  value={officerPassword}
+                  onChange={(e) =>
+                    setOfficerPassword(e.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  style={{position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", padding: "4px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"}}
+                  onClick={() => setShowOfficerPassword(!showOfficerPassword)}
+                  aria-label={showOfficerPassword ? "Hide password" : "Show password"}
+                  title={showOfficerPassword ? "Hide password" : "Show password"}
+                >
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M2.1 12s3.5-6 9.9-6 9.9 6 9.9 6-3.5 6-9.9 6-9.9-6-9.9-6Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+                      <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.8"/>
+                    </svg>
+                </button>
+              </div>
 
               <button
                 className="primary-button"
@@ -2209,36 +2274,26 @@ function App() {
 
                 <input
                   required
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength="10"
-                  pattern={phonePattern}
-                  title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9."
-                  placeholder="Mobile Number (10 digits)"
+                  placeholder="Mobile Number"
                   value={reportData.phone}
                   onChange={(e) =>
-                    handlePhoneChange(
-                      (value) =>
-                        setReportData({
-                          ...reportData,
-                          phone: value,
-                        }),
-                      e.target.value
-                    )
+                    handlePhoneChange(setReportData, "phone", e.target.value)
                   }
+                  inputMode="numeric"
+                  maxLength={10}
+                  pattern="[6-9][0-9]{9}"
+                  title="Enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9."
                 />
 
                 <input
                   required
                   type="email"
-                  pattern={emailPattern}
-                  title="Enter a valid email address, for example name@example.com."
                   placeholder="Email Address"
                   value={reportData.email}
                   onChange={(e) =>
                     setReportData({
                       ...reportData,
-                      email: e.target.value.trim(),
+                      email: e.target.value,
                     })
                   }
                 />
