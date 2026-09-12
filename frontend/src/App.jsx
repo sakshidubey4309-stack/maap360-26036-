@@ -536,12 +536,61 @@ function App() {
 
           </section>
 
+          {/* QR VERIFICATION FEATURE */}
+
+          <section className="qr-feature-panel">
+
+            <div className="qr-feature-copy">
+              <div className="qr-feature-badge">FAST PUBLIC CHECK</div>
+              <h3>Verify an instrument in seconds</h3>
+              <p>
+                Scan the instrument QR code to check its verification status,
+                key instrument details and verification or expiry information.
+              </p>
+
+              <div className="qr-feature-flow">
+                <div>
+                  <strong>1</strong>
+                  <span>Scan QR</span>
+                </div>
+                <div className="qr-feature-arrow">→</div>
+                <div>
+                  <strong>2</strong>
+                  <span>See status</span>
+                </div>
+                <div className="qr-feature-arrow">→</div>
+                <div>
+                  <strong>3</strong>
+                  <span>Check dates</span>
+                </div>
+              </div>
+
+              <button
+                className="primary-action qr-feature-button"
+                onClick={() => setPage("scanner")}
+              >
+                Scan QR & Verify →
+              </button>
+            </div>
+
+            <div className="qr-feature-visual" aria-hidden="true">
+              <div className="qr-ring"></div>
+              <div className="qr-box">
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+              </div>
+              <div className="qr-status-pill">✓ Verification Status</div>
+            </div>
+
+          </section>
+
           {/* SIX HOME OPTIONS */}
 
           <section className="home-options">
 
             <button
-              className="home-card"
+              className="home-card home-card-primary"
               onClick={() => setPage("scanner")}
             >
               <div className="home-icon">
@@ -691,6 +740,83 @@ function App() {
             </button>
 
           </section>
+
+          {/* TRUST INDICATORS */}
+
+          <section className="trust-section">
+            <div className="section-heading">
+              <span className="section-kicker">WHY USERS TRUST THE FLOW</span>
+              <h3>Built around simple, visible verification</h3>
+            </div>
+
+            <div className="trust-grid">
+              <div className="trust-item"><strong>✓</strong><span>Digital Verification</span></div>
+              <div className="trust-item"><strong>⌗</strong><span>QR-Based Identification</span></div>
+              <div className="trust-item"><strong>◷</strong><span>Expiry Monitoring</span></div>
+              <div className="trust-item"><strong>◆</strong><span>Officer Verification</span></div>
+              <div className="trust-item"><strong>!</strong><span>Public Reporting</span></div>
+            </div>
+          </section>
+
+          {/* HOW MAAP360 SOLVES THE PROBLEM */}
+
+          <section className="how-section">
+            <div className="section-heading">
+              <span className="section-kicker">THE MAAP360 JOURNEY</span>
+              <h3>How MAAP360 solves the problem</h3>
+              <p>One connected journey from registration to public reporting.</p>
+            </div>
+
+            <div className="how-flow">
+              <div className="how-step">
+                <div className="how-number">01</div>
+                <h4>Register</h4>
+                <p>Owners register instruments and keep their verification records organized.</p>
+              </div>
+              <div className="how-connector">→</div>
+              <div className="how-step">
+                <div className="how-number">02</div>
+                <h4>Verify</h4>
+                <p>Customers and officers can check an instrument through QR-based verification.</p>
+              </div>
+              <div className="how-connector">→</div>
+              <div className="how-step">
+                <div className="how-number">03</div>
+                <h4>Monitor</h4>
+                <p>Dashboards make active, pending and expiring instruments easier to track.</p>
+              </div>
+              <div className="how-connector">→</div>
+              <div className="how-step">
+                <div className="how-number">04</div>
+                <h4>Report</h4>
+                <p>Users can report suspicious or problematic devices for further review.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* WHY MAAP360 */}
+
+          <section className="why-section">
+            <div className="section-heading">
+              <span className="section-kicker">THE DIFFERENCE</span>
+              <h3>Why MAAP360?</h3>
+              <p>Turning a fragmented verification experience into one connected digital flow.</p>
+            </div>
+
+            <div className="why-table">
+              <div className="why-row why-head">
+                <div>Without MAAP360</div>
+                <div>With MAAP360</div>
+              </div>
+              <div className="why-row"><div>Manual verification</div><div>Digital verification</div></div>
+              <div className="why-row"><div>Difficult status checking</div><div>QR-based checking</div></div>
+              <div className="why-row"><div>Scattered records</div><div>Centralized information</div></div>
+              <div className="why-row"><div>Delayed expiry awareness</div><div>Expiry monitoring</div></div>
+              <div className="why-row"><div>Limited reporting visibility</div><div>Digital reporting</div></div>
+            </div>
+          </section>
+
+          {/* ================================================= */}
 
         </main>
       )}
@@ -1209,9 +1335,9 @@ function App() {
 
       {page === "owner-dashboard" && ownerLoggedIn && (
 
-        <main className="dashboard-container">
+        <main className="dashboard-container officer-dashboard-shell">
 
-          <aside className="sidebar">
+          <aside className="sidebar officer-sidebar">
 
             <div className="sidebar-title">
               MAAP360
@@ -1239,9 +1365,9 @@ function App() {
 
           </aside>
 
-          <section className="dashboard-content">
+          <section className="dashboard-content officer-dashboard-content">
 
-            <div className="dashboard-header">
+            <div className="dashboard-header officer-dashboard-header">
 
               <h2>
                 Instrument Owner Dashboard
@@ -1255,7 +1381,7 @@ function App() {
 
             {/* WELCOME */}
 
-            <div className="welcome-card">
+            <div className="welcome-card officer-welcome-card">
 
               <div className="shop-graphic">
                 ⌂
@@ -1290,7 +1416,7 @@ function App() {
                 Owner & Shop Details
               </h2>
 
-              <div className="details-grid">
+              <div className="details-grid officer-details-grid">
 
                 <div>
                   <span>Owner ID</span>
@@ -1346,7 +1472,7 @@ function App() {
 
             {/* STATISTICS */}
 
-            <div className="statistics">
+            <div className="statistics officer-statistics">
 
               <div className="stat-card">
 
@@ -1728,7 +1854,7 @@ function App() {
 
             </div>
 
-            <div className="simple-card officer-summary-card">
+            <div className="simple-card officer-summary-card officer-panel">
 
               <h2>Officer Overview</h2>
 
@@ -1758,11 +1884,11 @@ function App() {
 
             </div>
 
-            <div className="simple-card">
+            <div className="simple-card officer-panel officer-activity-panel">
 
               <h2>Recent Verification Activity</h2>
 
-              <div className="activity-list">
+              <div className="activity-list officer-activity-list">
 
                 <div className="activity-row">
                   <div>
@@ -1801,11 +1927,11 @@ function App() {
 
             </div>
 
-            <div className="simple-card">
+            <div className="simple-card officer-panel officer-audit-panel">
 
               <h2>Audit & Activity Log</h2>
 
-              <div className="audit-table">
+              <div className="audit-table officer-audit-table">
 
                 <div className="audit-row audit-head">
                   <span>Activity</span>
@@ -1844,12 +1970,18 @@ function App() {
 
             </div>
 
-            <button
-              className="large-action-button"
-              onClick={() => setPage("verify-device")}
-            >
-              Verify a Device →
-            </button>
+            <div className="officer-action-row">
+              <div>
+                <strong>Ready for verification?</strong>
+                <span>Select an instrument and complete the verification checklist.</span>
+              </div>
+              <button
+                className="large-action-button officer-primary-action"
+                onClick={() => setPage("verify-device")}
+              >
+                Verify a Device →
+              </button>
+            </div>
 
           </section>
 
@@ -2839,9 +2971,16 @@ function App() {
       {/* ================= FOOTER ================= */}
 
       <footer>
-        <strong>MAAP360</strong>
-        {" "}•{" "}
-        LEGAL METROLOGY
+        <div className="footer-main">
+          <strong>MAAP360</strong>
+          <span>LEGAL METROLOGY</span>
+          <small>Digital Verification & Management of Weighing and Measuring Instruments</small>
+        </div>
+        <div className="footer-links">
+          <button onClick={() => { setManualLanguage("en"); setPage("manual"); }}>User Manual</button>
+          <button onClick={() => setPage("about")}>About</button>
+          <button onClick={() => setPage("contact")}>Contact</button>
+        </div>
       </footer>
 
     </div>
