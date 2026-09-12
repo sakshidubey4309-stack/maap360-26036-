@@ -4,6 +4,7 @@ import "./App.css";
 
 function App() {
   const [page, setPage] = useState("home");
+  const [manualLanguage, setManualLanguage] = useState("en");
 
   // =========================
   // OWNER
@@ -659,6 +660,30 @@ function App() {
 
                 <p>
                   Get in touch with our team
+                </p>
+              </div>
+
+              <span>→</span>
+            </button>
+
+            <button
+              className="home-card manual-home-card"
+              onClick={() => {
+                setManualLanguage("en");
+                setPage("manual");
+              }}
+            >
+              <div className="home-icon manual-icon">
+                ☰
+              </div>
+
+              <div>
+                <h3>
+                  User Manual
+                </h3>
+
+                <p>
+                  Step-by-step guide for every user
                 </p>
               </div>
 
@@ -2457,6 +2482,293 @@ function App() {
             </section>
 
           )}
+
+        </main>
+      )}
+
+      {/* ================================================= */}
+      {/* USER MANUAL */}
+      {/* ================================================= */}
+
+      {page === "manual" && (
+
+        <main className="page-container manual-page-container">
+
+          <button
+            className="back-button"
+            onClick={goHome}
+          >
+            ← Back to Home
+          </button>
+
+          <section className="manual-card">
+
+            <div className="manual-header">
+              <div>
+                <span className="manual-eyebrow">MAAP360 GUIDE</span>
+                <h2>User Manual</h2>
+                <p>
+                  {manualLanguage === "en"
+                    ? "A simple guide to help customers, instrument owners, government officers and reporters use MAAP360."
+                    : "ग्राहकों, उपकरण स्वामियों, सरकारी अधिकारियों और रिपोर्ट करने वाले उपयोगकर्ताओं के लिए MAAP360 की सरल मार्गदर्शिका।"}
+                </p>
+              </div>
+
+              <div className="manual-language-switch" role="group" aria-label="Manual language">
+                <button
+                  className={manualLanguage === "en" ? "active" : ""}
+                  onClick={() => setManualLanguage("en")}
+                >
+                  English
+                </button>
+                <button
+                  className={manualLanguage === "hi" ? "active" : ""}
+                  onClick={() => setManualLanguage("hi")}
+                >
+                  हिंदी
+                </button>
+              </div>
+            </div>
+
+            {manualLanguage === "en" ? (
+              <div className="manual-content">
+
+                <div className="manual-intro">
+                  <strong>What is MAAP360?</strong>
+                  <p>
+                    MAAP360 is a digital platform for verification and management of weighing and measuring instruments. It brings customer verification, owner management, officer verification and device reporting into one easy workflow.
+                  </p>
+                </div>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">01</div>
+                  <div>
+                    <h3>Start from the Home Page</h3>
+                    <p>The Home Page gives access to the main MAAP360 functions:</p>
+                    <div className="manual-feature-grid">
+                      <div><strong>Scan QR & Verify</strong><span>Check an instrument's verification information.</span></div>
+                      <div><strong>Instrument Owner Dashboard</strong><span>Register and manage instruments.</span></div>
+                      <div><strong>Government Officer Dashboard</strong><span>Carry out authorized verification workflows.</span></div>
+                      <div><strong>Report a Device</strong><span>Send a report about a suspicious or problematic device.</span></div>
+                      <div><strong>About MAAP360</strong><span>Understand the platform and its purpose.</span></div>
+                      <div><strong>Contact Us</strong><span>Access support and contact information.</span></div>
+                      <div><strong>User Manual</strong><span>Read this step-by-step guide in English or Hindi.</span></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">02</div>
+                  <div>
+                    <h3>For Customers / General Users</h3>
+                    <p className="manual-lead">Use <strong>Scan QR & Verify</strong> to check an instrument quickly.</p>
+                    <div className="manual-steps">
+                      <div><b>1</b><span>Open <strong>Scan QR & Verify</strong>.</span></div>
+                      <div><b>2</b><span>Scan the QR code attached to the instrument, or select <strong>Scan an Image File</strong> when a QR image is already available.</span></div>
+                      <div><b>3</b><span>Review the instrument information shown by MAAP360.</span></div>
+                      <div><b>4</b><span>Check the verification status, verification date and expiry date.</span></div>
+                    </div>
+                    <div className="manual-status-grid">
+                      <div><strong>Verified</strong><span>Recorded verification is valid.</span></div>
+                      <div><strong>Expired</strong><span>The recorded verification period has ended.</span></div>
+                      <div><strong>Not Verified / Invalid</strong><span>The available record could not confirm the instrument as valid.</span></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">03</div>
+                  <div>
+                    <h3>For Instrument Owners</h3>
+                    <p>Owners use the portal to register their business information and manage registered instruments.</p>
+                    <h4>Registration</h4>
+                    <p>Enter Name, Phone Number, Email, Shop Name, Shop Type, Business Type, GST Number, Address and Password.</p>
+                    <div className="manual-steps">
+                      <div><b>1</b><span>Open <strong>Instrument Owner Dashboard</strong> and choose <strong>Sign In</strong>.</span></div>
+                      <div><b>2</b><span>Complete the registration form with accurate details.</span></div>
+                      <div><b>3</b><span>Verify the OTP sent to the registered mobile number.</span></div>
+                      <div><b>4</b><span>After successful OTP verification, MAAP360 generates a unique <strong>Owner ID</strong>.</span></div>
+                    </div>
+                    <h4>Owner Login</h4>
+                    <p>Use your <strong>Owner ID</strong> and <strong>Password</strong>. After successful credentials, complete the mobile OTP step to access the dashboard.</p>
+                    <h4>Owner Dashboard</h4>
+                    <div className="manual-status-grid">
+                      <div><strong>Total Registered Instruments</strong><span>Total instruments registered by the owner.</span></div>
+                      <div><strong>Actively Verified</strong><span>Instruments with currently valid verification.</span></div>
+                      <div><strong>Expired Instruments</strong><span>Instruments whose verification has expired.</span></div>
+                      <div><strong>Expiring This Month</strong><span>Instruments approaching expiry this month.</span></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">04</div>
+                  <div>
+                    <h3>For Government Officers</h3>
+                    <p>Only authorized officers should use the Government Officer Portal.</p>
+                    <h4>Officer Login & 2FA</h4>
+                    <div className="manual-steps">
+                      <div><b>1</b><span>Enter the <strong>Login ID</strong> and <strong>Password</strong>.</span></div>
+                      <div><b>2</b><span>Verify the mobile OTP.</span></div>
+                      <div><b>3</b><span>Verify the email OTP.</span></div>
+                      <div><b>4</b><span>Enter the officer dashboard after both checks are successful.</span></div>
+                    </div>
+                    <h4>Verify a Device</h4>
+                    <p>The verification workflow can include Instrument ID, Instrument Category, Last Verification Date, Shop and Instrument entries, Live Device Image, QR Image and Seal Image. The officer records the verification decision and remarks after review.</p>
+                    <div className="manual-note">Security note: passwords and OTPs should never be displayed in an audit/activity record.</div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">05</div>
+                  <div>
+                    <h3>For Reporters / Public Users</h3>
+                    <p>Use <strong>Report a Device</strong> when an instrument appears suspicious, problematic or potentially unverified.</p>
+                    <p>The form can capture reporter details, Instrument ID, Category, Shop Name, Location, Reason, Description and a supporting image.</p>
+                    <p>Provide clear and accurate information so the report can be reviewed efficiently.</p>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">06</div>
+                  <div>
+                    <h3>How MAAP360 Works</h3>
+                    <div className="manual-flow">
+                      <span>Discover</span><i>→</i><span>Scan</span><i>→</i><span>Verify</span><i>→</i><span>Monitor</span><i>→</i><span>Report</span><i>→</i><span>Review</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">07</div>
+                  <div>
+                    <h3>Important Safety & Usage Notes</h3>
+                    <p>Enter accurate information. Keep passwords and OTPs private. Use officer functions only when authorized. For support, use the <strong>Contact Us</strong> section.</p>
+                  </div>
+                </section>
+
+              </div>
+            ) : (
+              <div className="manual-content hindi-content">
+
+                <div className="manual-intro">
+                  <strong>MAAP360 क्या है?</strong>
+                  <p>
+                    MAAP360 तौल एवं माप उपकरणों के verification और management के लिए एक डिजिटल प्लेटफ़ॉर्म है। यह customer verification, owner management, officer verification और device reporting को एक सरल workflow में जोड़ता है।
+                  </p>
+                </div>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">01</div>
+                  <div>
+                    <h3>Home Page से शुरुआत करें</h3>
+                    <p>Home Page से MAAP360 की मुख्य सुविधाओं तक पहुँचा जा सकता है:</p>
+                    <div className="manual-feature-grid">
+                      <div><strong>Scan QR & Verify</strong><span>उपकरण की verification information देखें।</span></div>
+                      <div><strong>Instrument Owner Dashboard</strong><span>अपने instruments को register और manage करें।</span></div>
+                      <div><strong>Government Officer Dashboard</strong><span>अधिकृत verification workflow पूरा करें।</span></div>
+                      <div><strong>Report a Device</strong><span>संदिग्ध या समस्या वाले device की report करें।</span></div>
+                      <div><strong>About MAAP360</strong><span>Platform और उसके उद्देश्य की जानकारी लें।</span></div>
+                      <div><strong>Contact Us</strong><span>सहायता और contact information प्राप्त करें।</span></div>
+                      <div><strong>User Manual</strong><span>English या Hindi में step-by-step guide पढ़ें।</span></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">02</div>
+                  <div>
+                    <h3>ग्राहक / सामान्य उपयोगकर्ता के लिए</h3>
+                    <p className="manual-lead"><strong>Scan QR & Verify</strong> का उपयोग करके उपकरण की जल्दी जाँच करें।</p>
+                    <div className="manual-steps">
+                      <div><b>1</b><span><strong>Scan QR & Verify</strong> खोलें।</span></div>
+                      <div><b>2</b><span>उपकरण पर दिए QR code को scan करें, या पहले से उपलब्ध QR image के लिए <strong>Scan an Image File</strong> चुनें।</span></div>
+                      <div><b>3</b><span>MAAP360 द्वारा दिखाई गई instrument information की समीक्षा करें।</span></div>
+                      <div><b>4</b><span>Verification status, verification date और expiry date देखें।</span></div>
+                    </div>
+                    <div className="manual-status-grid">
+                      <div><strong>Verified</strong><span>Recorded verification valid है।</span></div>
+                      <div><strong>Expired</strong><span>Recorded verification period समाप्त हो चुका है।</span></div>
+                      <div><strong>Not Verified / Invalid</strong><span>उपलब्ध record instrument को valid confirm नहीं कर पाया।</span></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">03</div>
+                  <div>
+                    <h3>Instrument Owner के लिए</h3>
+                    <p>Owner अपने business details और registered instruments को manage कर सकता है।</p>
+                    <h4>Registration</h4>
+                    <p>Name, Phone Number, Email, Shop Name, Shop Type, Business Type, GST Number, Address और Password भरें।</p>
+                    <div className="manual-steps">
+                      <div><b>1</b><span><strong>Instrument Owner Dashboard</strong> खोलकर <strong>Sign In</strong> चुनें।</span></div>
+                      <div><b>2</b><span>Registration form में सही जानकारी भरें।</span></div>
+                      <div><b>3</b><span>Registered mobile number पर भेजे गए OTP को verify करें।</span></div>
+                      <div><b>4</b><span>OTP verification सफल होने के बाद unique <strong>Owner ID</strong> generate होता है।</span></div>
+                    </div>
+                    <h4>Owner Login</h4>
+                    <p><strong>Owner ID</strong> और <strong>Password</strong> से login करें। इसके बाद mobile OTP verify करके dashboard खोलें।</p>
+                    <h4>Owner Dashboard</h4>
+                    <div className="manual-status-grid">
+                      <div><strong>Total Registered Instruments</strong><span>Owner द्वारा registered कुल instruments।</span></div>
+                      <div><strong>Actively Verified</strong><span>वर्तमान में valid verification वाले instruments।</span></div>
+                      <div><strong>Expired Instruments</strong><span>जिनकी verification expire हो चुकी है।</span></div>
+                      <div><strong>Expiring This Month</strong><span>इस महीने expiry के करीब पहुँच रहे instruments।</span></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">04</div>
+                  <div>
+                    <h3>Government Officer के लिए</h3>
+                    <p>Government Officer Portal का उपयोग केवल authorized officers द्वारा किया जाना चाहिए।</p>
+                    <h4>Officer Login और 2FA</h4>
+                    <div className="manual-steps">
+                      <div><b>1</b><span><strong>Login ID</strong> और <strong>Password</strong> दर्ज करें।</span></div>
+                      <div><b>2</b><span>Mobile OTP verify करें।</span></div>
+                      <div><b>3</b><span>Email OTP verify करें।</span></div>
+                      <div><b>4</b><span>दोनों checks सफल होने के बाद Officer Dashboard खोलें।</span></div>
+                    </div>
+                    <h4>Verify a Device</h4>
+                    <p>Verification workflow में Instrument ID, Instrument Category, Last Verification Date, Shop और Instrument entries, Live Device Image, QR Image और Seal Image शामिल हो सकते हैं। Review के बाद officer verification decision और remarks दर्ज करता है।</p>
+                    <div className="manual-note">Security note: Password और OTP को audit/activity record में कभी display नहीं करना चाहिए।</div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">05</div>
+                  <div>
+                    <h3>Report करने वाले उपयोगकर्ता के लिए</h3>
+                    <p>जब कोई instrument संदिग्ध, problematic या संभावित रूप से unverified दिखाई दे, तो <strong>Report a Device</strong> का उपयोग करें।</p>
+                    <p>Form में reporter details, Instrument ID, Category, Shop Name, Location, Reason, Description और supporting image दी जा सकती है।</p>
+                    <p>साफ और सही जानकारी दें ताकि report की review प्रक्रिया आसान हो।</p>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">06</div>
+                  <div>
+                    <h3>MAAP360 कैसे काम करता है</h3>
+                    <div className="manual-flow">
+                      <span>पहचान</span><i>→</i><span>Scan</span><i>→</i><span>Verification</span><i>→</i><span>Monitoring</span><i>→</i><span>Report</span><i>→</i><span>Review</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="manual-section">
+                  <div className="manual-section-number">07</div>
+                  <div>
+                    <h3>महत्वपूर्ण उपयोग निर्देश</h3>
+                    <p>सही जानकारी दर्ज करें। Password और OTP को private रखें। Officer functions का उपयोग केवल authorization होने पर करें। सहायता के लिए <strong>Contact Us</strong> section का उपयोग करें।</p>
+                  </div>
+                </section>
+
+              </div>
+            )}
+
+          </section>
 
         </main>
       )}
